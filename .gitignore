@@ -1,0 +1,10 @@
+node_modules/
+.output/
+.wxt/
+*.tsbuildinfo
+
+# 环境文件：示例入库，真实配置不入库
+.env
+.env.*
+!.env.example
+!.env.production.example

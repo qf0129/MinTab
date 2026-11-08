@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.8
+
+      - name: Install
+        run: bun install
+
+      # The backend URL is baked into the manifest's host_permissions. A release
+      # without it would ship an extension that can only talk to localhost.
+      - name: Check release configuration
+        env:
+          SITE_BASE: ${{ vars.WXT_SITE_BASE }}
+        run: |
+          if [ -z "$SITE_BASE" ]; then
+            echo "::error::Repository variable WXT_SITE_BASE is not set (Settings → Secrets and variables → Actions → Variables)."
+            exit 1
+          fi
+
+      - name: Build Chrome zip
+        env:
+          WXT_SITE_BASE: ${{ vars.WXT_SITE_BASE }}
+          WXT_STRICT_SITE: '1'
+        run: bun run zip
+
+      - name: Build Firefox zip
+        env:
+          WXT_SITE_BASE: ${{ vars.WXT_SITE_BASE }}
+          WXT_STRICT_SITE: '1'
+        run: bun run zip:firefox
+
+      - name: Checksums
+        run: |
+          cd .output
+          sha256sum *.zip > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            .output/*.zip
+            .output/SHA256SUMS.txt
+          generate_release_notes: true

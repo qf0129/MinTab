@@ -1,0 +1,77 @@
+name: Bug report
+description: 功能不符合预期、报错、数据异常
+title: '[Bug] '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。**安全问题不要在这里提**，请按 SECURITY.md 走私密渠道。
+        提之前先搜一下已有 issue，避免重复。
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 扩展版本号（设置弹窗或扩展管理页可见）
+      placeholder: '例如 1.0.0'
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: 浏览器
+      options:
+        - Chrome
+        - Edge
+        - Firefox
+        - 其他（在描述里注明）
+    validations:
+      required: true
+  - type: dropdown
+    id: build
+    attributes:
+      label: 构建方式
+      options:
+        - 商店安装的版本
+        - 从源码构建
+        - 不确定
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 打开新标签页
+        2. 点击……
+        3. 看到……
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+      description: 有报错就把控制台（扩展页 → service worker / 新标签页 DevTools）的内容贴上来
+    validations:
+      required: true
+  - type: checkboxes
+    id: data
+    attributes:
+      label: 数据影响
+      options:
+        - label: 涉及书签被误删或恢复失败（请额外说明是否保留备份）
+        - label: 涉及账号连接或云端快照
+        - label: 以上都不涉及
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 确认
+      options:
+        - label: 我已搜索过已有 issue
+          required: true
