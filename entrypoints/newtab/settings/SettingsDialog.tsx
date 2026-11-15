@@ -5,14 +5,14 @@ import {
   Search as SearchIcon,
   Settings as SettingsIcon,
   X,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { PRODUCT_NAME } from "../../../lib/constants";
-import type { BrowserBookmarkNode, Settings, User } from "../../../lib/types";
-import { AboutPanel } from "./AboutPanel";
-import { AppearancePanel } from "./AppearancePanel";
-import { SearchPanel } from "./SearchPanel";
-import { SyncPanel } from "./SyncPanel";
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { PRODUCT_NAME } from '../../../lib/constants';
+import type { BrowserBookmarkNode, Settings, User } from '../../../lib/types';
+import { AboutPanel } from './AboutPanel';
+import { AppearancePanel } from './AppearancePanel';
+import { SearchPanel } from './SearchPanel';
+import { SyncPanel } from './SyncPanel';
 
 interface Props {
   open: boolean;
@@ -35,7 +35,7 @@ interface Props {
 }
 
 interface SectionDef {
-  id: "sync" | "appearance" | "search" | "about";
+  id: 'sync' | 'appearance' | 'search' | 'about';
   label: string;
   title: string;
   icon: typeof CloudUpload;
@@ -43,27 +43,27 @@ interface SectionDef {
 
 const SECTIONS = [
   {
-    id: "appearance",
-    label: "外观",
-    title: "外观",
+    id: 'appearance',
+    label: '外观',
+    title: '外观',
     icon: Palette,
   },
   {
-    id: "search",
-    label: "搜索",
-    title: "搜索",
+    id: 'search',
+    label: '搜索',
+    title: '搜索',
     icon: SearchIcon,
   },
   {
-    id: "sync",
-    label: "账号与同步",
-    title: "账号与同步",
+    id: 'sync',
+    label: '账号与同步',
+    title: '账号与同步',
     icon: CloudUpload,
   },
   {
-    id: "about",
-    label: "关于",
-    title: "关于",
+    id: 'about',
+    label: '关于',
+    title: '关于',
     icon: Info,
   },
 ] as const satisfies readonly SectionDef[];
@@ -86,7 +86,7 @@ export function SettingsDialog({
   onPauseRefresh,
   onResumeRefresh,
 }: Props) {
-  const [section, setSection] = useState<SectionDef["id"]>("appearance");
+  const [section, setSection] = useState<SectionDef['id']>('appearance');
   const dialogRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   // The parent passes a fresh `onClose` on every render; going through a ref
@@ -97,21 +97,19 @@ export function SettingsDialog({
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         event.stopPropagation();
         closeRef.current();
       }
     };
     const previousOverflow = document.body.style.overflow;
     const previousFocus =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", onKeyDown);
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKeyDown);
     dialogRef.current?.focus();
     return () => {
-      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = previousOverflow;
       // Hand focus back to the settings button instead of dropping it on <body>.
       previousFocus?.focus();
@@ -152,9 +150,7 @@ export function SettingsDialog({
             </span>
             <div className="min-w-0">
               <p className="text-sm font-semibold leading-5">设置</p>
-              <p className="text-[11px] leading-4 text-black/40">
-                {PRODUCT_NAME}
-              </p>
+              <p className="text-[11px] leading-4 text-black/40">{PRODUCT_NAME}</p>
             </div>
           </div>
           <nav aria-label="设置分类" className="space-y-1">
@@ -165,11 +161,11 @@ export function SettingsDialog({
                   key={id}
                   type="button"
                   onClick={() => setSection(id)}
-                  aria-current={selected ? "true" : undefined}
+                  aria-current={selected ? 'true' : undefined}
                   className={`focus-ring flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition ${
                     selected
-                      ? "bg-[#176b61]/10 font-medium text-[#176b61]"
-                      : "text-black/60 hover:bg-black/[0.04] hover:text-black/80"
+                      ? 'bg-[#176b61]/10 font-medium text-[#176b61]'
+                      : 'text-black/60 hover:bg-black/[0.04] hover:text-black/80'
                   }`}
                 >
                   <Icon size={16} className="shrink-0" />
@@ -185,10 +181,7 @@ export function SettingsDialog({
 
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex items-center gap-3 border-b border-black/8 px-5 py-3 sm:px-6">
-            <h2
-              id="settings-title"
-              className="min-w-0 flex-1 truncate text-base font-semibold"
-            >
+            <h2 id="settings-title" className="min-w-0 flex-1 truncate text-base font-semibold">
               {active.title}
             </h2>
             <button
@@ -213,11 +206,11 @@ export function SettingsDialog({
                   key={id}
                   type="button"
                   onClick={() => setSection(id)}
-                  aria-current={selected ? "true" : undefined}
+                  aria-current={selected ? 'true' : undefined}
                   className={`focus-ring flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition ${
                     selected
-                      ? "bg-[#176b61]/10 font-medium text-[#176b61]"
-                      : "text-black/55 hover:bg-black/[0.04]"
+                      ? 'bg-[#176b61]/10 font-medium text-[#176b61]'
+                      : 'text-black/55 hover:bg-black/[0.04]'
                   }`}
                 >
                   <Icon size={14} className="shrink-0" />
@@ -231,17 +224,14 @@ export function SettingsDialog({
             Panels stay mounted and are only hidden: restore progress, typed
             engine names and the background error then survive a tab switch.
           */}
-          <div
-            ref={contentRef}
-            className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6"
-          >
-            <div hidden={active.id !== "appearance"}>
+          <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+            <div hidden={active.id !== 'appearance'}>
               <AppearancePanel settings={settings} onSettings={onSettings} />
             </div>
-            <div hidden={active.id !== "search"}>
+            <div hidden={active.id !== 'search'}>
               <SearchPanel settings={settings} onSettings={onSettings} />
             </div>
-            <div hidden={active.id !== "sync"}>
+            <div hidden={active.id !== 'sync'}>
               <SyncPanel
                 user={user}
                 sessionError={sessionError}
@@ -257,7 +247,7 @@ export function SettingsDialog({
                 onResumeRefresh={onResumeRefresh}
               />
             </div>
-            <div hidden={active.id !== "about"}>
+            <div hidden={active.id !== 'about'}>
               <AboutPanel />
             </div>
           </div>

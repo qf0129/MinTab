@@ -1,26 +1,27 @@
-import type { CardOpacity, SearchEngine, Settings } from "./types";
+import type { CardOpacity, SearchEngine, Settings } from './types';
 
 /** Base URL of the web app, without a trailing slash. */
-export const SITE_BASE = (
-  import.meta.env.WXT_SITE_BASE || "http://127.0.0.1:8787"
-).replace(/\/+$/, "");
+export const SITE_BASE = (import.meta.env.WXT_SITE_BASE || 'http://127.0.0.1:8787').replace(
+  /\/+$/,
+  ''
+);
 /**
  * Display name. Forks can rebrand without touching source: set
  * `WXT_PRODUCT_NAME` at build time and both the manifest and the UI follow.
  */
-export const PRODUCT_NAME = import.meta.env.WXT_PRODUCT_NAME || "MinTab";
-export const SETTINGS_KEY = "mintab_settings";
-export const DEVICE_ID_KEY = "mintab_device_id";
-export const LAST_UPLOAD_KEY = "mintab_last_upload";
+export const PRODUCT_NAME = import.meta.env.WXT_PRODUCT_NAME || 'MinTab';
+export const SETTINGS_KEY = 'mintab_settings';
+export const DEVICE_ID_KEY = 'mintab_device_id';
+export const LAST_UPLOAD_KEY = 'mintab_last_upload';
 /** Folder ids whose group is collapsed on the new tab page. */
-export const COLLAPSED_GROUPS_KEY = "mintab_collapsed_groups";
+export const COLLAPSED_GROUPS_KEY = 'mintab_collapsed_groups';
 /**
  * Token issued by the web app during the connection handshake. Stored locally so
  * the extension never has to read the web session cookie (no `cookies` permission).
  */
-export const EXTENSION_TOKEN_KEY = "mintab_extension_token";
+export const EXTENSION_TOKEN_KEY = 'mintab_extension_token';
 /** One-time handshake state waiting for the user to approve it in the web app. */
-export const PENDING_LINK_KEY = "mintab_pending_link";
+export const PENDING_LINK_KEY = 'mintab_pending_link';
 
 /**
  * A built-in page background.
@@ -39,87 +40,84 @@ export interface BackgroundPreset {
 }
 
 export const DEFAULT_BACKGROUND_PRESET: BackgroundPreset = {
-  id: "mist",
-  name: "高级灰",
+  id: 'mist',
+  name: '高级灰',
   backgroundImage:
-    "radial-gradient(110% 80% at 14% 0%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 58%), radial-gradient(90% 75% at 88% 100%, rgba(60, 68, 78, 0.14) 0%, rgba(60, 68, 78, 0) 62%), linear-gradient(150deg, #f0f2f4 0%, #e3e7ea 34%, #d3d9de 68%, #c2cad0 100%)",
-  backgroundColor: "#e3e7ea",
+    'radial-gradient(110% 80% at 14% 0%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 58%), radial-gradient(90% 75% at 88% 100%, rgba(60, 68, 78, 0.14) 0%, rgba(60, 68, 78, 0) 62%), linear-gradient(150deg, #f0f2f4 0%, #e3e7ea 34%, #d3d9de 68%, #c2cad0 100%)',
+  backgroundColor: '#e3e7ea',
 };
 
 export const BACKGROUND_PRESETS: BackgroundPreset[] = [
   DEFAULT_BACKGROUND_PRESET,
   {
-    id: "ivory",
-    name: "象牙",
-    backgroundImage: "none",
-    backgroundColor: "#f4efe4",
+    id: 'ivory',
+    name: '象牙',
+    backgroundImage: 'none',
+    backgroundColor: '#f4efe4',
   },
   {
-    id: "graphite",
-    name: "石墨",
-    backgroundImage: "none",
-    backgroundColor: "#26302d",
+    id: 'graphite',
+    name: '石墨',
+    backgroundImage: 'none',
+    backgroundColor: '#26302d',
   },
   {
-    id: "dusk",
-    name: "暮色",
+    id: 'dusk',
+    name: '暮色',
+    backgroundImage: 'linear-gradient(150deg, #fbe8d3 0%, #f3c9c0 42%, #b9a3c9 100%)',
+    backgroundColor: '#f3c9c0',
+  },
+  {
+    id: 'ocean',
+    name: '海盐',
+    backgroundImage: 'linear-gradient(150deg, #e6f4f6 0%, #cfe4f2 48%, #c3d2ec 100%)',
+    backgroundColor: '#cfe4f2',
+  },
+  {
+    id: 'mint',
+    name: '薄荷',
     backgroundImage:
-      "linear-gradient(150deg, #fbe8d3 0%, #f3c9c0 42%, #b9a3c9 100%)",
-    backgroundColor: "#f3c9c0",
+      'radial-gradient(circle at 20% 10%, rgba(143, 216, 184, 0.55), transparent 55%), radial-gradient(circle at 85% 80%, rgba(94, 160, 205, 0.35), transparent 60%), linear-gradient(160deg, #f7fdfa 0%, #e8f4ef 100%)',
+    backgroundColor: '#e8f4ef',
   },
   {
-    id: "ocean",
-    name: "海盐",
+    id: 'aurora',
+    name: '极光',
     backgroundImage:
-      "linear-gradient(150deg, #e6f4f6 0%, #cfe4f2 48%, #c3d2ec 100%)",
-    backgroundColor: "#cfe4f2",
+      'conic-gradient(from 210deg at 72% 18%, #d9f0e8, #eef6f9, #f7e7d8, #dfe9fa, #d9f0e8)',
+    backgroundColor: '#eef6f9',
   },
   {
-    id: "mint",
-    name: "薄荷",
+    id: 'grid',
+    name: '网格',
     backgroundImage:
-      "radial-gradient(circle at 20% 10%, rgba(143, 216, 184, 0.55), transparent 55%), radial-gradient(circle at 85% 80%, rgba(94, 160, 205, 0.35), transparent 60%), linear-gradient(160deg, #f7fdfa 0%, #e8f4ef 100%)",
-    backgroundColor: "#e8f4ef",
+      'repeating-linear-gradient(0deg, rgba(23, 107, 97, 0.10) 0 1px, transparent 1px 32px), repeating-linear-gradient(90deg, rgba(23, 107, 97, 0.10) 0 1px, transparent 1px 32px)',
+    backgroundColor: '#f2f8f6',
   },
   {
-    id: "aurora",
-    name: "极光",
-    backgroundImage:
-      "conic-gradient(from 210deg at 72% 18%, #d9f0e8, #eef6f9, #f7e7d8, #dfe9fa, #d9f0e8)",
-    backgroundColor: "#eef6f9",
+    id: 'dots',
+    name: '圆点',
+    backgroundImage: 'radial-gradient(rgba(23, 107, 97, 0.18) 1.5px, transparent 1.6px)',
+    backgroundColor: '#f7fbf9',
+    backgroundSize: '22px 22px',
+    backgroundRepeat: 'repeat',
   },
   {
-    id: "grid",
-    name: "网格",
+    id: 'stripes',
+    name: '斜纹',
     backgroundImage:
-      "repeating-linear-gradient(0deg, rgba(23, 107, 97, 0.10) 0 1px, transparent 1px 32px), repeating-linear-gradient(90deg, rgba(23, 107, 97, 0.10) 0 1px, transparent 1px 32px)",
-    backgroundColor: "#f2f8f6",
-  },
-  {
-    id: "dots",
-    name: "圆点",
-    backgroundImage:
-      "radial-gradient(rgba(23, 107, 97, 0.18) 1.5px, transparent 1.6px)",
-    backgroundColor: "#f7fbf9",
-    backgroundSize: "22px 22px",
-    backgroundRepeat: "repeat",
-  },
-  {
-    id: "stripes",
-    name: "斜纹",
-    backgroundImage:
-      "repeating-linear-gradient(135deg, rgba(23, 107, 97, 0.08) 0 14px, rgba(23, 107, 97, 0) 14px 28px)",
-    backgroundColor: "#f4faf7",
+      'repeating-linear-gradient(135deg, rgba(23, 107, 97, 0.08) 0 14px, rgba(23, 107, 97, 0) 14px 28px)',
+    backgroundColor: '#f4faf7',
   },
 ];
 
 export const DEFAULT_SETTINGS: Settings = {
   backgroundImage: null,
   backgroundPreset: DEFAULT_BACKGROUND_PRESET.id,
-  newTabBookmarkSize: "medium",
-  cardOpacity: "medium",
+  newTabBookmarkSize: 'medium',
+  cardOpacity: 'medium',
   searchEnabled: true,
-  searchEngine: "google",
+  searchEngine: 'google',
   customSearchEngines: [],
 };
 
@@ -162,21 +160,18 @@ export interface Theme {
  * text readable. The `medium` level is the default and is already lighter than
  * the original near-solid cards.
  */
-const CARD_ALPHA: Record<
-  CardOpacity,
-  { chip: [number, number]; folder: [number, number] }
-> = {
+const CARD_ALPHA: Record<CardOpacity, { chip: [number, number]; folder: [number, number] }> = {
   clear: { chip: [0.4, 0.3], folder: [0.3, 0.1] },
   medium: { chip: [0.84, 0.7], folder: [0.7, 0.55] },
   solid: { chip: [0.96, 0.84], folder: [0.86, 0.68] },
 };
 
-const THEME_BASE: Omit<Theme, "chip" | "folder"> = {
-  fg: "#1f2928",
-  accent: "linear-gradient(135deg, #30c5ab 0%, #0f8d7c 46%, #0a6a5e 100%)",
-  accentSolid: "#176b61",
-  accentSoft: "rgba(23, 107, 97, 0.16)",
-  line: "rgba(23, 107, 97, 0.14)",
+const THEME_BASE: Omit<Theme, 'chip' | 'folder'> = {
+  fg: '#1f2928',
+  accent: 'linear-gradient(135deg, #30c5ab 0%, #0f8d7c 46%, #0a6a5e 100%)',
+  accentSolid: '#176b61',
+  accentSoft: 'rgba(23, 107, 97, 0.16)',
+  line: 'rgba(23, 107, 97, 0.14)',
 };
 
 /** Palette for the chosen card/folder transparency level. */
@@ -191,15 +186,15 @@ export function themeFor(opacity: CardOpacity): Theme {
 
 export const SEARCH_ENGINES: SearchEngine[] = [
   {
-    id: "google",
-    name: "Google",
-    url: "https://www.google.com/search?q={query}",
+    id: 'google',
+    name: 'Google',
+    url: 'https://www.google.com/search?q={query}',
   },
-  { id: "bing", name: "Bing", url: "https://www.bing.com/search?q={query}" },
-  { id: "baidu", name: "百度", url: "https://www.baidu.com/s?wd={query}" },
+  { id: 'bing', name: 'Bing', url: 'https://www.bing.com/search?q={query}' },
+  { id: 'baidu', name: '百度', url: 'https://www.baidu.com/s?wd={query}' },
   {
-    id: "duckduckgo",
-    name: "DuckDuckGo",
-    url: "https://duckduckgo.com/?q={query}",
+    id: 'duckduckgo',
+    name: 'DuckDuckGo',
+    url: 'https://duckduckgo.com/?q={query}',
   },
 ];
