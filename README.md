@@ -34,8 +34,8 @@ cp .env.example .env        # 默认后端 http://127.0.0.1:8787
 bun dev                     # 监听构建，产物在 .output/chrome-mv3-dev
 ```
 
-然后在 Chrome 打开 `chrome://extensions` → 打开"开发者模式" → "加载已解压的扩展程序" →
-选择 `.output/chrome-mv3-dev`。
+然后在 Chrome 打开 `chrome://extensions`（Edge 用 `edge://extensions`）→ 打开"开发者模式" →
+"加载已解压的扩展程序" → 选择 `.output/chrome-mv3-dev`。两者共用同一份 MV3 构建。
 
 `bun dev` 只做构建/监听，不会自动拉起浏览器（`wxt.config.ts` 里 `webExt.disabled = true`）。
 
@@ -45,7 +45,7 @@ bun dev                     # 监听构建，产物在 .output/chrome-mv3-dev
 | --- | --- |
 | `bun run dev` / `bun run dev:firefox` | 开发构建（Chrome / Firefox） |
 | `bun run build` / `bun run build:firefox` | 生产构建 |
-| `bun run zip` / `bun run zip:firefox` | 商店用 zip |
+| `bun run zip` / `bun run zip:firefox` | 商店用 zip（Chromium 包 Chrome / Edge 共用） |
 | `bun run test` | 单元测试（Vitest） |
 | `bun run test:watch` | 监听模式 |
 | `bun run check` | TypeScript 类型检查 |
@@ -152,4 +152,5 @@ you host yourself.
 - **MIT licensed** code; the name and logo are not (see [TRADEMARK.md](TRADEMARK.md)).
 
 Quick start: `bun install && cp .env.example .env && bun dev`, then load
-`.output/chrome-mv3-dev` as an unpacked extension. Requires Bun 1.3+ (or Node 20+).
+`.output/chrome-mv3-dev` as an unpacked extension in Chrome or Edge. Requires Bun 1.3+
+(or Node 20+).

@@ -36,21 +36,26 @@ WXT_BACKEND=local bun run build
 ## 产物
 
 ```bash
-bun run build          # Chrome MV3 -> .output/chrome-mv3/
+bun run build          # Chromium MV3 -> .output/chrome-mv3/
 bun run build:firefox  # Firefox    -> .output/firefox-mv2/
-bun run zip            # 商店用 zip -> .output/*.zip
+bun run zip            # 商店用 zip -> .output/*-chromium.zip
 bun run zip:firefox
 ```
 
-Chrome / Edge 本地验证：打开 `chrome://extensions` → 开发者模式 → 「加载已解压的扩展程序」
-→ 选择 `.output/chrome-mv3`。
+Chrome / Edge / 其它 Chromium 浏览器共用这一份 MV3 包（WXT 没有独立的 edge 目标，
+`-b edge` 只会换一个输出目录名，manifest 与 Chrome 版一致）。所以发布里只有
+`mintab-extension-<版本>-chromium.zip` 与 `mintab-extension-<版本>-firefox.zip` 两个产物，
+Edge 用同一个 zip，不需要额外构建。
+
+本地验证：打开 `chrome://extensions`（或 Edge 的 `edge://extensions`）→ 开发者模式 →
+「加载已解压的扩展程序」→ 选择 `.output/chrome-mv3`。
 
 ## 发布流水线
 
 `.github/workflows/release.yml` 在推送 `v*` tag 时：
 
-1. 用仓库变量 `WXT_SITE_BASE` 构建两个浏览器版本（未配置则直接失败）；
-2. 生成 zip 与 SHA256；
+1. 用仓库变量 `WXT_SITE_BASE` 构建 Chromium（Chrome + Edge 共用）与 Firefox 两个版本（未配置则直接失败）；
+2. 生成 zip 与 SHA256（Chromium 包会被重命名为 `*-chromium.zip`）；
 3. 创建 GitHub Release 并附上产物。
 
 仓库设置里需要添加：
@@ -77,6 +82,18 @@ Chrome / Edge 本地验证：打开 `chrome://extensions` → 开发者模式 �
 - 正式分发需要 AMO 签名；自托管签名版需要配置 `browser_specific_settings.gecko.update_url`。
 - Firefox 的扩展 ID 与 Chrome 不同，`host_permissions` 的源不受影响，但后端如果按来源
   校验，要把两者都加上。
+
+## Edge
+
+- 不需要单独构建：Edge 是 Chromium，直接提交/加载 `mintab-extension-<版本>-chromium.zip`
+  （或本地加载 `.output/chrome-mv3`）。
+- 商店提交时把同一个 zip 上传到 [Edge 加载项的开发者后台](https://partner.microsoft.com/dashboard/microsoftedge)，
+  包格式按 MV3 校验，无需改 manifest。
+- Edge 的扩展 ID 与 Chrome 不同（Chromium 包在两家商店各自生成 ID）；后端若有按来源
+  校验的白名单，两边都要加。
+- `side_panel` 需要 Edge 114+，`favicon` 权限在 Chromium 内核上同样可用。
+- `bunx wxt zip -b edge` 也能跑通，但产物与 Chrome 版一致（只有目录名与 zip 名不同），
+  不要为它在 CI 里多跑一遍。
 
 ## Fork 发布
 

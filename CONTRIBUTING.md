@@ -18,7 +18,7 @@ bun dev
 首次安装会生成 `bun.lock`。如果这个目录已经是独立仓库，请把 `bun.lock` 一并提交，
 这样 CI 和其他贡献者拿到的是同一套依赖版本。
 
-打开 `chrome://extensions` → 开发者模式 → 加载 `.output/chrome-mv3-dev`。
+打开 `chrome://extensions`（Edge 用 `edge://extensions`）→ 开发者模式 → 加载 `.output/chrome-mv3-dev`。
 改了后台脚本（`entrypoints/background.ts`）后，要在扩展页点一次"重新加载"。
 
 ## 开发约定

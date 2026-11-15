@@ -31,7 +31,10 @@ jobs:
             exit 1
           fi
 
-      - name: Build Chrome zip
+      # Chrome 与 Edge（以及其它 Chromium 浏览器）共用同一份 MV3 包，所以这里
+      # 只构建一次；`scripts/rename-zip.mjs` 会把产物名从 `-chrome` 改成
+      # `-chromium`，避免让人以为 Edge 需要单独的构建。
+      - name: Build Chromium zip (Chrome + Edge)
         env:
           WXT_SITE_BASE: ${{ vars.WXT_SITE_BASE }}
           WXT_STRICT_SITE: '1'
