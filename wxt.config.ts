@@ -89,6 +89,8 @@ export default defineConfig({
       // Version comes from package.json so there is one source of truth.
       // `cookies` is deliberately absent: the extension authenticates with the
       // token issued by the web handshake, so it never reads the session cookie.
+      // The side panel permission is added automatically by WXT from the
+      // `sidepanel` entrypoint (`side_panel.default_path`).
       permissions: ['storage', 'favicon', 'bookmarks'],
       host_permissions: [`${new URL(siteBase).origin}/*`],
       action: { default_title: productName },

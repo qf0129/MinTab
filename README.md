@@ -16,6 +16,9 @@
   都直接写回浏览器，不会产生"插件里的书签"和"浏览器里的书签"两份。
 - **文件夹即分组**：按层级展示子文件夹，可折叠，折叠状态本地记忆。
 - **搜索**：地址栏风格搜索框，内置 Google / Bing / 百度 / DuckDuckGo，可添加自定义引擎。
+- **原生侧边栏**：点工具栏图标用浏览器的 `sidePanel` 打开右侧面板，里面就是同一套书签页；
+  面板保持打开，点书签或搜索会导航当前标签页，不用来回切页。面板较窄时自动收起设置按钮，
+  把空间让给搜索框。
 - **外观**：10 套内置背景、自定义背景图、卡片大小与透明度。
 - **可选同步**（需要兼容后端）：连接账号后上传快照；恢复支持"合并"和"覆盖"两种模式，
   写入前自动导出 Netscape HTML 备份，合并与覆盖都能撤销。
@@ -90,7 +93,7 @@ WXT_SITE_BASE=https://sync.example.com bun run build
 ## 开发
 
 ```text
-entrypoints/   background（唯一网络出口）+ newtab 页面
+entrypoints/   background（唯一网络出口）+ newtab 页面 + sidepanel（复用 newtab 代码）
 components/    书签卡片、文件夹面板、编辑弹窗
 hooks/         书签树订阅、折叠状态、设置
 lib/           纯逻辑：书签树操作、恢复算法、存储、后端适配层
@@ -112,8 +115,11 @@ bun run lint && bun run check && bun run test
 | `bookmarks` | 读取、创建、移动、删除书签（产品核心 + 恢复写回） |
 | `storage` | 保存设置、设备 id、令牌、折叠状态 |
 | `favicon` | 用浏览器缓存的站点图标渲染卡片，不向第三方发请求 |
+| `sidePanel` | 点工具栏图标时，用浏览器原生侧边栏承载书签页 |
 
 扩展**不申请** `cookies`：登录通过一次性握手换取设备令牌，从不读取网页会话 Cookie。
+也没有 `activeTab`、`scripting` 或 `<all_urls>` 主机权限：侧边栏是浏览器原生的
+`sidePanel`，不向网页注入脚本。
 没有分析 SDK、广告 SDK 或远程配置。完整说明见 [PRIVACY.md](PRIVACY.md)。
 不连接账号时，书签数据不会离开本机。
 

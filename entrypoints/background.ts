@@ -29,8 +29,24 @@ export default defineBackground(() => {
     return undefined;
   });
 
-  // The toolbar button has no popup; it opens the new tab page instead.
-  browser.action.onClicked.addListener(() => {
-    void browser.tabs.create({ url: browser.runtime.getURL('/newtab.html') });
-  });
+  // The toolbar button opens the browser's native side panel (Chrome/Edge).
+  // Chromium handles the click itself once this behavior is set, so no
+  // `action.onClicked` listener is needed there.
+  void browser.sidePanel
+    ?.setPanelBehavior({ openPanelOnActionClick: true })
+    .catch((error: unknown) => console.warn('[mintab] side panel unavailable', error));
+
+  // Firefox has no `sidePanel` namespace; WXT maps the entrypoint to
+  // `sidebar_action`, whose toolbar button has to be opened explicitly. MV2
+  // exposes the button as `browserAction`, MV3 as `action`.
+  const sidebarAction = (browser as unknown as { sidebarAction?: { open: () => Promise<void> } })
+    .sidebarAction;
+  const toolbarAction =
+    browser.action ??
+    (browser as unknown as { browserAction?: typeof browser.action }).browserAction;
+  if (sidebarAction && toolbarAction) {
+    toolbarAction.onClicked.addListener(() => {
+      void sidebarAction.open();
+    });
+  }
 });

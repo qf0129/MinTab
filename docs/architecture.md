@@ -15,10 +15,11 @@
 
 ```text
 entrypoints/
-  background.ts          后台 Service Worker：唯一的网络出口 + 工具栏按钮
+  background.ts          后台 Service Worker：唯一的网络出口 + 工具栏按钮 + 打开侧边栏
   newtab/                新标签页（chrome_url_overrides）
     NewTabApp.tsx        页面状态机：书签树、搜索、设置、上传/连接
     settings/            设置弹窗（外观 / 搜索 / 账号与同步 / 关于）
+  sidepanel/             浏览器原生侧边栏（chrome.sidePanel，复用 NewTabApp）
 components/              书签卡片、文件夹面板、编辑弹窗
 hooks/                   书签树的订阅与读取、折叠状态、设置
 lib/
@@ -98,9 +99,26 @@ NewTabApp ──► BookmarkBoard / 文件夹面板      （纯本地渲染、�
 两个模式都会在写入前导出 Netscape HTML 备份（覆盖模式强制）。恢复期间暂停书签订阅，
 避免几千次 `onCreated` 触发全树重读。
 
+## 工具栏侧边栏
+
+点击工具栏图标时，由浏览器原生的 `chrome.sidePanel` 打开右侧面板：`background.ts` 调用
+`sidePanel.setPanelBehavior({ openPanelOnActionClick: true })`，Chromium 随后自己接管图标点击。
+面板页面在 `entrypoints/sidepanel/`，`main.tsx` 直接渲染
+`<NewTabApp mode="sidepanel" />`，与新标签页共用同一套书签树、设置、同步、搜索和组件代码。
+
+- **打开方式**：原生侧边栏，宽度由浏览器拖拽；chrome:// 页面也能用，不受站点 CSP 影响。
+- **导航**：side panel 模式下点书签/提交搜索不会导航面板自身，而是通过
+  `browser.tabs.update` 把当前标签页送到目标网址，面板保持打开；失败时退回新标签页。
+- **紧凑布局**：side panel 复用同一套渲染，只切换搜索栏的窄屏样式（保留搜索按钮、缩小字号）；
+  面板窄于 520px 时隐藏设置齿轮，把宽度全让给搜索框，拖宽后面板自动恢复齿轮。
+- **Firefox**：没有 `sidePanel`，WXT 自动把 sidepanel entrypoint 映射成 `sidebar_action`；
+  `background.ts` 检测到 `sidebarAction` 时用 `action.onClicked` 打开它。
+
 ## 权限与安全
 
-- 权限只有 `storage`、`favicon`、`bookmarks`，**没有** `cookies`、`tabs`、`history`。
+- 权限只有 `storage`、`favicon`、`bookmarks`、`sidePanel`，**没有**
+  `cookies`、`tabs`、`history`、`activeTab`、`scripting`，也没有 `<all_urls>` 主机权限。
+- 侧边栏是浏览器原生面板，不向网页注入任何脚本，也不读取页面内容。
 - 登录走一次性握手：网页端确认 → `state` 换设备令牌；扩展从不读取网页会话 Cookie。
 - `state` 是 32 字节随机数；本地 15 分钟后丢弃，服务端建议 10 分钟、单次使用、只存哈希。
 - 书签链接只允许 `http:` / `https:` / `ftp:` 协议，其他协议静默忽略，避免

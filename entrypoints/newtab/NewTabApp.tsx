@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { browser } from 'wxt/browser';
 import { BookmarkBoard } from '../../components/BookmarkBoard';
 import { BookmarkDialogHost } from '../../components/BookmarkDialogHost';
 import { useBrowserBookmarks } from '../../hooks/use-browser-bookmarks';
@@ -38,14 +39,33 @@ import { SettingsDialog } from './settings/SettingsDialog';
  * schemes a page is allowed to open. Privileged or script URLs are ignored
  * instead of being handed to `location.assign`.
  */
-function openUrl(node: BrowserBookmarkNode): void {
-  if (!node.url) return;
+function bookmarkHref(node: BrowserBookmarkNode): string | null {
+  if (!node.url) return null;
   try {
     const parsed = new URL(node.url);
-    if (!['http:', 'https:', 'ftp:'].includes(parsed.protocol)) return;
-    window.location.assign(parsed.href);
+    if (!['http:', 'https:', 'ftp:'].includes(parsed.protocol)) return null;
+    return parsed.href;
   } catch {
     // Malformed URL: nothing sensible to open.
+    return null;
+  }
+}
+
+/**
+ * In the side panel, navigating the panel itself would replace the bookmark
+ * list with the target site. Send the active tab there instead, so the panel
+ * stays open while the page changes.
+ */
+async function openInActiveTab(url: string): Promise<boolean> {
+  try {
+    const [tab] = await browser.tabs.query({ active: true, lastFocusedWindow: true });
+    if (tab?.id === undefined) return false;
+    await browser.tabs.update(tab.id, { url });
+    return true;
+  } catch (error) {
+    // Missing host permission or a restricted page: let the caller fall back.
+    console.warn('[mintab] could not navigate the active tab', error);
+    return false;
   }
 }
 
@@ -95,8 +115,17 @@ function GroupHeader({
   );
 }
 
-export function NewTabApp() {
+interface NewTabAppProps {
+  /**
+   * `sidepanel` is the chrome.sidePanel surface: the same page, but bookmark
+   * and search navigation is sent to the active tab instead of this window.
+   */
+  mode?: 'newtab' | 'sidepanel';
+}
+
+export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
   const { settings, loading, updateSettings } = useSettings();
+  const sidepanel = mode === 'sidepanel';
   const { tree, loading: bookmarksLoading, refresh, pause, resume } = useBrowserBookmarks();
   const { collapsed, toggle, expand } = useCollapsedGroups();
   const [user, setUser] = useState<User | null>(null);
@@ -276,12 +305,32 @@ export function NewTabApp() {
     [tree]
   );
 
+  const openBookmark = useCallback(
+    (node: BrowserBookmarkNode) => {
+      const href = bookmarkHref(node);
+      if (!href) return;
+      if (sidepanel) {
+        void openInActiveTab(href).then((opened) => {
+          if (!opened) window.open(href, '_blank', 'noopener,noreferrer');
+        });
+        return;
+      }
+      window.location.assign(href);
+    },
+    [sidepanel]
+  );
+
   const search = (event: FormEvent) => {
     event.preventDefault();
     if (!query.trim()) return;
-    window.location.assign(
-      selectedEngine.url.replaceAll('{query}', encodeURIComponent(query.trim()))
-    );
+    const target = selectedEngine.url.replaceAll('{query}', encodeURIComponent(query.trim()));
+    if (sidepanel) {
+      void openInActiveTab(target).then((opened) => {
+        if (!opened) window.open(target, '_blank', 'noopener,noreferrer');
+      });
+      return;
+    }
+    window.location.assign(target);
   };
 
   const doUpload = async () => {
@@ -359,13 +408,19 @@ export function NewTabApp() {
           {settings.searchEnabled && (
             <form
               onSubmit={search}
-              className="absolute inset-x-36 mx-auto grid h-12 max-w-3xl grid-cols-[120px_minmax(0,1fr)_72px] overflow-hidden rounded-full max-lg:static max-lg:min-w-0 max-lg:flex-1 max-sm:grid-cols-[92px_minmax(0,1fr)]"
+              className={`absolute inset-x-36 mx-auto grid h-12 max-w-3xl overflow-hidden rounded-full max-lg:static max-lg:min-w-0 max-lg:flex-1 ${
+                sidepanel
+                  ? 'grid-cols-[80px_minmax(0,1fr)_60px] max-sm:grid-cols-[80px_minmax(0,1fr)_60px]'
+                  : 'grid-cols-[120px_minmax(0,1fr)_72px] max-sm:grid-cols-[92px_minmax(0,1fr)]'
+              }`}
               style={glassStyle}
             >
               <select
                 value={selectedEngine.id}
                 onChange={(event) => updateSettings({ searchEngine: event.target.value })}
-                className="min-w-0 bg-transparent text-center text-sm outline-none"
+                className={`min-w-0 bg-transparent text-center outline-none ${
+                  sidepanel ? 'text-[13px]' : 'text-sm'
+                }`}
               >
                 {engines.map((engine) => (
                   <option key={engine.id} value={engine.id}>
@@ -377,11 +432,15 @@ export function NewTabApp() {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={`使用 ${selectedEngine.name} 搜索`}
-                className="min-w-0 bg-transparent px-4 text-sm outline-none placeholder:opacity-55"
+                className={`min-w-0 bg-transparent outline-none placeholder:opacity-55 ${
+                  sidepanel ? 'px-3 text-[13px]' : 'px-4 text-sm'
+                }`}
               />
               <button
                 type="submit"
-                className="text-sm font-medium tracking-[0.04em] text-white transition hover:brightness-105 max-sm:hidden"
+                className={`font-medium tracking-[0.04em] text-white transition hover:brightness-105 ${
+                  sidepanel ? 'text-[13px]' : 'text-sm max-sm:hidden'
+                }`}
                 style={{
                   background: theme.accent,
                   // A hairline of light along the top edge stops the flat cap
@@ -393,7 +452,14 @@ export function NewTabApp() {
               </button>
             </form>
           )}
-          <nav className="flex shrink-0 items-center gap-1">
+          <nav
+            className={`flex shrink-0 items-center gap-1 ${
+              // The panel can be dragged narrower than the search pill needs;
+              // below 520px the gear would leave no room for the query, so it
+              // steps aside. Settings stay reachable from a full new tab.
+              sidepanel ? 'max-[520px]:hidden' : ''
+            }`}
+          >
             <button
               type="button"
               onClick={() => {
@@ -448,7 +514,7 @@ export function NewTabApp() {
                         size={settings.newTabBookmarkSize}
                         cardColor={theme.chip}
                         accentColor={theme.accentSolid}
-                        onOpen={openUrl}
+                        onOpen={openBookmark}
                         onOpenFolder={scrollToFolder}
                         onEdit={setEditing}
                         onMove={moveBookmark}
@@ -487,7 +553,7 @@ export function NewTabApp() {
                                 size={settings.newTabBookmarkSize}
                                 cardColor={theme.chip}
                                 accentColor={theme.accentSolid}
-                                onOpen={openUrl}
+                                onOpen={openBookmark}
                                 onOpenFolder={scrollToFolder}
                                 onEdit={setEditing}
                                 onMove={moveBookmark}
