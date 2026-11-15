@@ -18,7 +18,7 @@ entrypoints/
   background.ts          后台 Service Worker：唯一的网络出口 + 工具栏按钮
   newtab/                新标签页（chrome_url_overrides）
     NewTabApp.tsx        页面状态机：书签树、搜索、设置、上传/连接
-    settings/            设置弹窗（外观 / 账号与同步 / 搜索）
+    settings/            设置弹窗（外观 / 搜索 / 账号与同步 / 关于）
 components/              书签卡片、文件夹面板、编辑弹窗
 hooks/                   书签树的订阅与读取、折叠状态、设置
 lib/

@@ -1,5 +1,6 @@
 import {
   CloudUpload,
+  Info,
   Palette,
   Search as SearchIcon,
   Settings as SettingsIcon,
@@ -8,6 +9,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { PRODUCT_NAME } from "../../../lib/constants";
 import type { BrowserBookmarkNode, Settings, User } from "../../../lib/types";
+import { AboutPanel } from "./AboutPanel";
 import { AppearancePanel } from "./AppearancePanel";
 import { SearchPanel } from "./SearchPanel";
 import { SyncPanel } from "./SyncPanel";
@@ -33,7 +35,7 @@ interface Props {
 }
 
 interface SectionDef {
-  id: "sync" | "appearance" | "search";
+  id: "sync" | "appearance" | "search" | "about";
   label: string;
   title: string;
   icon: typeof CloudUpload;
@@ -57,6 +59,12 @@ const SECTIONS = [
     label: "账号与同步",
     title: "账号与同步",
     icon: CloudUpload,
+  },
+  {
+    id: "about",
+    label: "关于",
+    title: "关于",
+    icon: Info,
   },
 ] as const satisfies readonly SectionDef[];
 
@@ -248,6 +256,9 @@ export function SettingsDialog({
                 onPauseRefresh={onPauseRefresh}
                 onResumeRefresh={onResumeRefresh}
               />
+            </div>
+            <div hidden={active.id !== "about"}>
+              <AboutPanel />
             </div>
           </div>
         </div>
