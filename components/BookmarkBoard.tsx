@@ -10,7 +10,7 @@ interface Props {
   size?: 'small' | 'medium' | 'large';
   /** Gradient (or colour) painted on every card. */
   cardColor?: string;
-  /** Hairline border colour that matches the active theme. */
+  /** Optional hairline border; the new tab page renders borderless cards. */
   cardBorder?: string;
   /** Solid accent used by folder icons and the folder count chip. */
   accentColor?: string;

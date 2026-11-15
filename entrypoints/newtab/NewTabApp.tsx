@@ -346,9 +346,9 @@ export function NewTabApp() {
             }}
           />
           <span
-            className="absolute -bottom-56 -right-32 size-[40rem] rounded-full opacity-70 blur-3xl"
+            className="absolute -bottom-56 -right-32 size-[40rem] rounded-full opacity-50 blur-3xl"
             style={{
-              background: 'radial-gradient(circle, rgba(72, 82, 94, 0.18), transparent 70%)',
+              background: 'radial-gradient(circle, rgba(72, 82, 94, 0.08), transparent 70%)',
             }}
           />
         </div>
@@ -381,8 +381,13 @@ export function NewTabApp() {
               />
               <button
                 type="submit"
-                className="text-sm font-medium text-white transition hover:brightness-110 max-sm:hidden"
-                style={{ background: theme.accent }}
+                className="text-sm font-medium tracking-[0.04em] text-white transition hover:brightness-105 max-sm:hidden"
+                style={{
+                  background: theme.accent,
+                  // A hairline of light along the top edge stops the flat cap
+                  // from looking like a pasted-on rectangle.
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.28)',
+                }}
               >
                 搜索
               </button>
@@ -442,7 +447,6 @@ export function NewTabApp() {
                         nodes={root.children ?? []}
                         size={settings.newTabBookmarkSize}
                         cardColor={theme.chip}
-                        cardBorder={theme.line}
                         accentColor={theme.accentSolid}
                         onOpen={openUrl}
                         onOpenFolder={scrollToFolder}
@@ -482,7 +486,6 @@ export function NewTabApp() {
                                 nodes={group.nodes}
                                 size={settings.newTabBookmarkSize}
                                 cardColor={theme.chip}
-                                cardBorder={theme.line}
                                 accentColor={theme.accentSolid}
                                 onOpen={openUrl}
                                 onOpenFolder={scrollToFolder}

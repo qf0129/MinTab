@@ -4,5 +4,8 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit"
   },
-  "biome.configurationPath": "biome.json"
+  "biome.configurationPath": "biome.json",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
