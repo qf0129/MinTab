@@ -16,6 +16,7 @@ import { useCollapsedGroups } from '../../hooks/use-collapsed-groups';
 import { useSettings } from '../../hooks/use-settings';
 import { backend } from '../../lib/backend';
 import {
+  bookmarkHref,
   countBookmarks,
   moveBookmarkNode,
   rootFolders,
@@ -33,23 +34,6 @@ import { beginExtensionLink, completePendingLink, unlinkExtension } from '../../
 import { loadLastUpload } from '../../lib/storage';
 import type { BrowserBookmarkNode, User } from '../../lib/types';
 import { SettingsDialog } from './settings/SettingsDialog';
-
-/**
- * Bookmark URLs come from the browser profile, not from us: only navigate to
- * schemes a page is allowed to open. Privileged or script URLs are ignored
- * instead of being handed to `location.assign`.
- */
-function bookmarkHref(node: BrowserBookmarkNode): string | null {
-  if (!node.url) return null;
-  try {
-    const parsed = new URL(node.url);
-    if (!['http:', 'https:', 'ftp:'].includes(parsed.protocol)) return null;
-    return parsed.href;
-  } catch {
-    // Malformed URL: nothing sensible to open.
-    return null;
-  }
-}
 
 /**
  * In the side panel, navigating the panel itself would replace the bookmark
@@ -517,6 +501,7 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
                         onOpen={openBookmark}
                         onOpenFolder={scrollToFolder}
                         onEdit={setEditing}
+                        openInPlace={!sidepanel}
                         onMove={moveBookmark}
                       />
                     </div>
@@ -556,6 +541,7 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
                                 onOpen={openBookmark}
                                 onOpenFolder={scrollToFolder}
                                 onEdit={setEditing}
+                                openInPlace={!sidepanel}
                                 onMove={moveBookmark}
                               />
                             </div>

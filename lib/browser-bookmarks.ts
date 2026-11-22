@@ -10,6 +10,24 @@ export function isFolder(node: BrowserBookmarkNode): boolean {
   return Array.isArray(node.children);
 }
 
+/**
+ * Bookmark URLs come from the browser profile, not from us: only hand back
+ * schemes a page is allowed to navigate to. Privileged or script URLs (`javascript:`,
+ * `chrome:`, `file:` …) return `null` so callers render them as inert instead of
+ * putting them in an `href` or handing them to `location.assign`.
+ */
+export function bookmarkHref(node: BrowserBookmarkNode): string | null {
+  if (!node.url) return null;
+  try {
+    const parsed = new URL(node.url);
+    if (!['http:', 'https:', 'ftp:'].includes(parsed.protocol)) return null;
+    return parsed.href;
+  } catch {
+    // Malformed URL: nothing sensible to open.
+    return null;
+  }
+}
+
 /** Top-level folders: 书签栏 / 其他书签 / 移动设备书签 … */
 export function rootFolders(tree: BrowserBookmarkNode[]): BrowserBookmarkNode[] {
   return (tree[0]?.children ?? []).filter(isFolder);

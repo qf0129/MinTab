@@ -1,7 +1,7 @@
 import { Folder, Globe, Pencil } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { ReactSortable, type SortableEvent } from 'react-sortablejs';
-import { countBookmarks, isFolder } from '../lib/browser-bookmarks';
+import { bookmarkHref, countBookmarks, isFolder } from '../lib/browser-bookmarks';
 import { faviconUrl, hostnameOf } from '../lib/favicon';
 import type { BrowserBookmarkNode } from '../lib/types';
 
@@ -18,6 +18,12 @@ interface Props {
   onOpen: (node: BrowserBookmarkNode) => void;
   onOpenFolder: (node: BrowserBookmarkNode) => void;
   onEdit: (node: BrowserBookmarkNode) => void;
+  /**
+   * Whether a bookmark card may navigate this window itself (`<a href>` default
+   * action). The new tab page does; the side panel must keep the list on screen
+   * and forwards the click to `onOpen` instead.
+   */
+  openInPlace?: boolean;
   /**
    * Persist that `node` was dropped at `newIndex` (the position it occupies
    * once `oldIndex` has been removed). Reject when the move could not be saved,
@@ -44,6 +50,7 @@ interface CardProps {
   onOpen: Props['onOpen'];
   onOpenFolder: Props['onOpenFolder'];
   onEdit: Props['onEdit'];
+  openInPlace: boolean;
   /** Injected by `react-sortablejs`; carries the sortable state classes. */
   className?: string;
   'data-id'?: string | number;
@@ -59,6 +66,7 @@ function BookmarkCard({
   onOpen,
   onOpenFolder,
   onEdit,
+  openInPlace,
   className,
   'data-id': dataId,
 }: CardProps) {
@@ -66,6 +74,37 @@ function BookmarkCard({
   const title = node.title || node.url || '未命名';
   const count = folder ? countBookmarks(node) : 0;
   const label = folder ? `${title}(${count})` : title;
+  // A bookmark is a real link, so the browser's own affordances (middle click,
+  // ⌘/Ctrl-click, "copy link", status-bar preview) work again. Folders have no
+  // target: they scroll to their inline group instead.
+  const href = folder ? null : bookmarkHref(node);
+
+  const body = (
+    <>
+      {folder ? (
+        <Folder size={20} className="size-5.5 shrink-0 py-0.5" style={{ color: accentColor }} />
+      ) : (
+        <img
+          src={faviconUrl(node.url ?? '')}
+          alt=""
+          className="size-5 shrink-0 rounded object-contain p-0.5"
+          onError={(event) => {
+            event.currentTarget.style.visibility = 'hidden';
+          }}
+        />
+      )}
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-medium">{label}</span>
+        {!folder && size === 'large' && (
+          <span className="block truncate text-xs opacity-55">{hostnameOf(node.url ?? '')}</span>
+        )}
+      </span>
+    </>
+  );
+
+  const mainClassName =
+    'focus-ring flex min-w-0 flex-1 cursor-grab items-center gap-2 text-left no-underline';
+
   return (
     <div
       data-id={dataId}
@@ -77,32 +116,37 @@ function BookmarkCard({
         className ?? ''
       }`}
     >
-      <button
-        type="button"
-        onClick={() => (folder ? onOpenFolder(node) : onOpen(node))}
-        title={folder ? `${title}(${count} 个书签)` : `${title} | ${node.url}`}
-        aria-label={label}
-        className="focus-ring flex min-w-0 flex-1 cursor-grab items-center gap-2 text-left"
-      >
-        {folder ? (
-          <Folder size={20} className="size-5.5 shrink-0 py-0.5" style={{ color: accentColor }} />
-        ) : (
-          <img
-            src={faviconUrl(node.url ?? '')}
-            alt=""
-            className="size-5 shrink-0 rounded object-contain p-0.5"
-            onError={(event) => {
-              event.currentTarget.style.visibility = 'hidden';
-            }}
-          />
-        )}
-        <span className="min-w-0">
-          <span className="block truncate text-sm font-medium">{label}</span>
-          {!folder && size === 'large' && (
-            <span className="block truncate text-xs opacity-55">{hostnameOf(node.url ?? '')}</span>
-          )}
-        </span>
-      </button>
+      {href ? (
+        <a
+          href={href}
+          // A natively draggable link would start an HTML5 drag on mousedown and
+          // steal the gesture from SortableJS's reorder drag.
+          draggable={false}
+          onClick={
+            openInPlace
+              ? undefined
+              : (event) => {
+                  event.preventDefault();
+                  onOpen(node);
+                }
+          }
+          title={`${title} | ${node.url}`}
+          aria-label={label}
+          className={mainClassName}
+        >
+          {body}
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={() => (folder ? onOpenFolder(node) : onOpen(node))}
+          title={folder ? `${title}(${count} 个书签)` : `${title} | ${node.url}`}
+          aria-label={label}
+          className={mainClassName}
+        >
+          {body}
+        </button>
+      )}
       <button
         type="button"
         onClick={(event) => {
@@ -130,6 +174,7 @@ export function BookmarkBoard({
   onOpen,
   onOpenFolder,
   onEdit,
+  openInPlace = true,
   onMove,
 }: Props) {
   // The browser stays the source of truth, but a finished drag has to show its
@@ -200,6 +245,7 @@ export function BookmarkBoard({
           onOpen={onOpen}
           onOpenFolder={onOpenFolder}
           onEdit={onEdit}
+          openInPlace={openInPlace}
         />
       ))}
     </ReactSortable>
