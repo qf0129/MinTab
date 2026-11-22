@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LOCAL_ONLY_MESSAGE } from '../lib/backend/contract';
+import { localOnlyMessage } from '../lib/backend/contract';
 import { createLocalBackend } from '../lib/backend/local';
 
 describe('local backend', () => {
@@ -15,11 +15,11 @@ describe('local backend', () => {
   });
 
   it('refuses uploads with a user-facing explanation', async () => {
-    await expect(backend.upload()).rejects.toThrow(LOCAL_ONLY_MESSAGE);
+    await expect(backend.upload()).rejects.toThrow(localOnlyMessage());
   });
 
   it('refuses to list snapshots', async () => {
-    await expect(backend.listUploads(20)).rejects.toThrow(LOCAL_ONLY_MESSAGE);
+    await expect(backend.listUploads(20)).rejects.toThrow(localOnlyMessage());
   });
 
   it('cannot complete a connection handshake', async () => {

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { backend, type UploadSummary } from '../../../lib/backend';
 import { downloadLocalBackup } from '../../../lib/backup';
 import { countLocalLinks } from '../../../lib/bookmark-transfer';
+import { formatDateTime, t } from '../../../lib/i18n';
 import {
   getUndoInfo,
   type RestoreMode,
@@ -46,19 +47,22 @@ function formatTime(timestamp: number): string {
     hour12: false,
   };
   if (date.getFullYear() !== new Date().getFullYear()) options.year = 'numeric';
-  return date.toLocaleString('zh-CN', options);
+  return formatDateTime(timestamp, options);
 }
 
 function browserLabel(upload: UploadSummary): string {
-  const name = upload.browser || '浏览器';
+  const name = upload.browser || t('restore_browser');
   return upload.browser_version ? `${name} ${upload.browser_version}` : name;
 }
 
 function summarize(result: RestoreResult): string {
-  const parts = [`新增 ${result.created}`, `跳过 ${result.skipped}`];
-  if (result.failed > 0) parts.push(`失败 ${result.failed}`);
-  if (result.mode === 'replace') parts.push(`删除 ${result.removed}`);
-  return `完成：${parts.join('，')}。`;
+  const parts = [
+    t('restore_partCreated', { count: result.created }),
+    t('restore_partSkipped', { count: result.skipped }),
+  ];
+  if (result.failed > 0) parts.push(t('restore_partFailed', { count: result.failed }));
+  if (result.mode === 'replace') parts.push(t('restore_partRemoved', { count: result.removed }));
+  return t('restore_done', { parts: parts.join(t('restore_partSeparator')) });
 }
 
 /**
@@ -124,7 +128,7 @@ export function RestorePanel({
         );
       })
       .catch((error: unknown) => {
-        if (active) setLoadError(error instanceof Error ? error.message : '加载上传记录失败');
+        if (active) setLoadError(error instanceof Error ? error.message : t('restore_loadFailed'));
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -141,7 +145,7 @@ export function RestorePanel({
 
     if (mode === 'replace' && localLinks > 0) {
       const confirmed = window.confirm(
-        `将删除本地 ${localLinks} 个书签，并用这份快照（${upload.entry_count} 个）替换。\n\n确定继续？`
+        t('restore_confirmReplace', { local: localLinks, total: upload.entry_count })
       );
       if (!confirmed) return;
     }
@@ -154,7 +158,7 @@ export function RestorePanel({
         backup = downloadLocalBackup(bookmarks);
       } catch {
         if (mode === 'replace') {
-          setPhase({ kind: 'error', message: '无法导出本地备份，已取消覆盖' });
+          setPhase({ kind: 'error', message: t('restore_backupFailed') });
           return;
         }
       }
@@ -162,7 +166,7 @@ export function RestorePanel({
 
     cancelRef.current = false;
     lastProgressRef.current = 0;
-    setPhase({ kind: 'running', progress: null, note: '正在获取快照…' });
+    setPhase({ kind: 'running', progress: null, note: t('restore_fetching') });
 
     try {
       const snapshot = await backend.getSnapshot(upload.id);
@@ -177,19 +181,22 @@ export function RestorePanel({
           const now = Date.now();
           if (now - lastProgressRef.current < PROGRESS_THROTTLE_MS) return;
           lastProgressRef.current = now;
-          setPhase({ kind: 'running', progress, note: '正在写入书签…' });
+          setPhase({ kind: 'running', progress, note: t('restore_writing') });
         },
       });
 
       setPhase({
         kind: 'done',
-        message: result.cancelled ? '已取消，本地书签未做修改。' : summarize(result),
+        message: result.cancelled ? t('restore_cancelled') : summarize(result),
         backup,
         notices: result.notices,
       });
       setUndoable(getUndoInfo() !== null);
     } catch (error) {
-      setPhase({ kind: 'error', message: error instanceof Error ? error.message : '恢复失败' });
+      setPhase({
+        kind: 'error',
+        message: error instanceof Error ? error.message : t('restore_failed'),
+      });
     } finally {
       onResumeRefresh();
     }
@@ -197,25 +204,34 @@ export function RestorePanel({
 
   const undo = async () => {
     if (running) return;
-    setPhase({ kind: 'running', progress: null, note: '正在撤销…' });
+    setPhase({ kind: 'running', progress: null, note: t('restore_undoing') });
     try {
       const result = await undoLastRestore();
       if (!result) {
-        setPhase({ kind: 'error', message: '没有可撤销的操作' });
+        setPhase({ kind: 'error', message: t('restore_nothingToUndo') });
         return;
       }
       setPhase({
         kind: 'done',
         message:
           result.mode === 'merge'
-            ? `已撤销：删除了本次合并新增的 ${result.changed} 个节点${result.failed ? `，${result.failed} 个未能删除` : ''}。`
-            : `已撤销：原书签已重新写回（${result.changed} 个节点${result.failed ? `，${result.failed} 个失败` : ''}）。`,
+            ? t('restore_undoMerge', {
+                changed: result.changed,
+                tail: result.failed ? t('restore_undoMergeTail', { failed: result.failed }) : '',
+              })
+            : t('restore_undoReplace', {
+                changed: result.changed,
+                tail: result.failed ? t('restore_undoReplaceTail', { failed: result.failed }) : '',
+              }),
         backup: '',
         notices: [],
       });
       setUndoable(false);
     } catch (error) {
-      setPhase({ kind: 'error', message: error instanceof Error ? error.message : '撤销失败' });
+      setPhase({
+        kind: 'error',
+        message: error instanceof Error ? error.message : t('restore_undoFailed'),
+      });
     } finally {
       onResumeRefresh();
     }
@@ -239,15 +255,15 @@ export function RestorePanel({
   }
 
   if (uploads === null) {
-    return <p className="py-6 text-center text-xs text-black/40">正在读取云端快照…</p>;
+    return <p className="py-6 text-center text-xs text-black/40">{t('restore_reading')}</p>;
   }
 
   if (uploads.length === 0) {
     return (
       <div className={`${cardClass} flex flex-wrap items-center gap-2 px-3.5 py-3`}>
-        <p className="min-w-0 flex-1 text-xs text-black/50">云上还没有快照，先上传一次当前书签。</p>
+        <p className="min-w-0 flex-1 text-xs text-black/50">{t('restore_empty')}</p>
         <button type="button" className={inlineLink} onClick={onOpenUpload}>
-          去上传
+          {t('restore_goUpload')}
         </button>
       </div>
     );
@@ -260,21 +276,25 @@ export function RestorePanel({
           value={selectedId ?? ''}
           onChange={(event) => setSelectedId(Number(event.target.value))}
           disabled={running}
-          aria-label="选择快照"
+          aria-label={t('restore_selectLabel')}
           className={fieldClass}
         >
           {uploads.map((upload, index) => (
             <option key={upload.id} value={upload.id}>
-              {browserLabel(upload)} · {formatTime(upload.created_at)} · {upload.entry_count} 条
-              {index === 0 ? '（最新）' : ''}
+              {t('restore_option', {
+                browser: browserLabel(upload),
+                time: formatTime(upload.created_at),
+                count: upload.entry_count,
+              })}
+              {index === 0 ? t('restore_latest') : ''}
             </option>
           ))}
         </select>
-        {loading && <p className="text-[11px] text-black/40">正在更新列表…</p>}
+        {loading && <p className="text-[11px] text-black/40">{t('restore_updating')}</p>}
 
         <div>
           <fieldset
-            aria-label="恢复方式"
+            aria-label={t('restore_modeLabel')}
             className="flex rounded-lg border border-black/8 bg-black/[0.03] p-0.5"
           >
             {(['merge', 'replace'] as const).map((item) => {
@@ -294,7 +314,7 @@ export function RestorePanel({
                       : 'text-black/55 hover:text-black/80'
                   }`}
                 >
-                  {item === 'merge' ? '合并到本地' : '覆盖本地'}
+                  {item === 'merge' ? t('restore_merge') : t('restore_replace')}
                 </button>
               );
             })}
@@ -305,8 +325,8 @@ export function RestorePanel({
             }`}
           >
             {mode === 'merge'
-              ? '只补充本地没有的链接，不删除现有书签。'
-              : `会删除本地其他书签（当前 ${localLinks} 个），开始后会再确认一次。`}
+              ? t('restore_mergeHint')
+              : t('restore_replaceHint', { count: localLinks })}
           </p>
         </div>
 
@@ -318,8 +338,10 @@ export function RestorePanel({
             onChange={(event) => setBackupEnabled(event.target.checked)}
             className="size-4 shrink-0 accent-[#26734d]"
           />
-          恢复前备份本地书签
-          {mode === 'replace' && <span className="text-black/40">（覆盖模式必须）</span>}
+          {t('restore_backup')}
+          {mode === 'replace' && (
+            <span className="text-black/40">{t('restore_backupRequired')}</span>
+          )}
         </label>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -331,7 +353,7 @@ export function RestorePanel({
                 cancelRef.current = true;
               }}
             >
-              取消
+              {t('dialog_cancel')}
             </button>
           ) : (
             <button
@@ -341,13 +363,13 @@ export function RestorePanel({
               disabled={!selectedId}
             >
               <RotateCcw size={15} />
-              开始恢复
+              {t('restore_start')}
             </button>
           )}
           {undoable && !running && (
             <button type="button" className={inlineLink} onClick={() => void undo()}>
               <Undo2 size={13} className="mr-1 inline" />
-              撤销上次恢复
+              {t('restore_undo')}
             </button>
           )}
         </div>
@@ -370,8 +392,13 @@ export function RestorePanel({
                   />
                 </div>
                 <p className="mt-1.5 text-[11px] leading-4 text-black/40">
-                  新增 {phase.progress.created} · 跳过 {phase.progress.skipped}
-                  {phase.progress.failed > 0 ? ` · 失败 ${phase.progress.failed}` : ''}
+                  {t('restore_progress', {
+                    created: phase.progress.created,
+                    skipped: phase.progress.skipped,
+                  })}
+                  {phase.progress.failed > 0
+                    ? t('restore_progressFailed', { failed: phase.progress.failed })
+                    : ''}
                 </p>
               </div>
             )}
@@ -388,7 +415,9 @@ export function RestorePanel({
           <div className="min-w-0">
             <p>{phase.message}</p>
             {phase.backup && (
-              <p className="mt-0.5 text-emerald-700/80">备份已下载：{phase.backup}</p>
+              <p className="mt-0.5 text-emerald-700/80">
+                {t('restore_backupDownloaded', { file: phase.backup })}
+              </p>
             )}
             {phase.notices.length > 0 && (
               <ul className="mt-1 list-disc space-y-0.5 pl-4 text-emerald-700/80">

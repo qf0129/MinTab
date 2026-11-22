@@ -1,4 +1,5 @@
 import { browser } from 'wxt/browser';
+import { t } from './i18n';
 import type { BookmarkGroup, BrowserBookmarkNode } from './types';
 
 /** Read the full native bookmark tree (fresh on every new tab open). */
@@ -34,7 +35,7 @@ export function rootFolders(tree: BrowserBookmarkNode[]): BrowserBookmarkNode[] 
 }
 
 function titleOf(node: BrowserBookmarkNode): string {
-  return node.title || '未命名';
+  return node.title || t('app_untitled');
 }
 
 /** Count bookmark links inside a folder, recursively. */

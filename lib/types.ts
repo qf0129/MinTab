@@ -1,9 +1,15 @@
 /** Types shared by the extension UI. Kept local now that `packages/` is gone. */
+import type { MessageKey } from './i18n';
 
 export interface SearchEngine {
   id: string;
   name: string;
   url: string;
+  /**
+   * `_locales` key for a built-in engine's label. User-added engines only carry
+   * the literal `name` they typed, which is never translated.
+   */
+  labelKey?: MessageKey;
 }
 
 export type CardOpacity = 'clear' | 'medium' | 'solid';

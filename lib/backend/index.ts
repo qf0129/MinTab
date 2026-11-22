@@ -12,4 +12,4 @@ const kind = import.meta.env.WXT_BACKEND === 'local' ? 'local' : 'http';
 export const backend = kind === 'local' ? createLocalBackend() : createHttpBackend();
 
 export type { SessionState, SyncBackend, UploadResult, UploadSummary } from './contract';
-export { LOCAL_ONLY_MESSAGE } from './contract';
+export { localOnlyMessage } from './contract';

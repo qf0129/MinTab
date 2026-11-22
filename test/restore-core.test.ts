@@ -5,6 +5,7 @@ import {
   getUndoInfo,
   resetUndoState,
   restoreSnapshot,
+  stagingFolderTitle,
   undoLastRestore,
 } from '../lib/restore-core';
 import type { BrowserBookmarkNode } from '../lib/types';
@@ -380,7 +381,7 @@ describe('restoreSnapshot · replace', () => {
     expect(linksIn(bar)).toEqual(['https://c.example', 'https://d.example']);
     expect(linksIn(other)).toEqual(['https://p.example']);
     // No staging folder left behind.
-    expect(titlesIn(bar).some((title) => title.startsWith('MinTab 恢复'))).toBe(false);
+    expect(titlesIn(bar).some((title) => title === stagingFolderTitle())).toBe(false);
   });
 
   it('clears a local root the snapshot does not mention', async () => {
@@ -472,7 +473,7 @@ describe('restoreSnapshot · replace', () => {
     );
 
     expect(result.failed).toBe(1);
-    const staging = (bar.children ?? []).find((node) => node.title.startsWith('MinTab 恢复'));
+    const staging = (bar.children ?? []).find((node) => node.title === stagingFolderTitle());
     expect(staging).toBeDefined();
     // Whatever could not be lifted is still inside the staging folder.
     expect(linksIn(staging ?? {})).toEqual(['https://c.example']);

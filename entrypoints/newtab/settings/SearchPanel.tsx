@@ -1,6 +1,7 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { SEARCH_ENGINES } from '../../../lib/constants';
+import { SEARCH_ENGINES, searchEngineLabel } from '../../../lib/constants';
+import { t } from '../../../lib/i18n';
 import type { SearchEngine, Settings } from '../../../lib/types';
 import { compactUuid } from '../../../lib/utils';
 import { cardClass, fieldClass, PanelSection, primaryButton, Switch } from './ui';
@@ -29,7 +30,7 @@ export function SearchPanel({ settings, onSettings }: Props) {
       if (!name || !template.includes('{query}') || !['http:', 'https:'].includes(parsed.protocol))
         throw new Error();
     } catch {
-      setError('请填写名称和包含 {query} 的 HTTP(S) 地址');
+      setError(t('search_invalid'));
       return;
     }
     const next: SearchEngine[] = [
@@ -44,40 +45,41 @@ export function SearchPanel({ settings, onSettings }: Props) {
 
   return (
     <div className="space-y-6">
-      <PanelSection title="搜索框">
+      <PanelSection title={t('search_section_box')}>
         <div className={`${cardClass} flex items-center gap-3 px-3.5 py-3`}>
           <div className="min-w-0 flex-1">
-            <p className="text-sm">显示搜索框</p>
-            <p className="mt-0.5 text-[11px] text-black/45">关闭后顶部只保留设置入口。</p>
+            <p className="text-sm">{t('search_show')}</p>
+            <p className="mt-0.5 text-[11px] text-black/45">{t('search_showHint')}</p>
           </div>
           <Switch
             checked={settings.searchEnabled}
             onChange={(checked) => void onSettings({ searchEnabled: checked })}
-            label="显示搜索框"
+            label={t('search_show')}
           />
         </div>
       </PanelSection>
 
-      <PanelSection title="搜索引擎">
+      <PanelSection title={t('search_section_engines')}>
         <ul className={`${cardClass} divide-y divide-black/6 overflow-hidden`}>
           {rows.map(({ engine, custom }) => {
             const current = settings.searchEngine === engine.id;
+            const label = searchEngineLabel(engine);
             return (
               <li key={engine.id} className="flex items-center gap-2.5 px-3 py-2">
                 <span className="grid size-7 shrink-0 place-items-center rounded-md bg-black/[0.05] text-[11px] font-semibold text-black/55">
-                  {engine.name.charAt(0).toUpperCase()}
+                  {label.charAt(0).toUpperCase()}
                 </span>
-                <span className="min-w-0 flex-1 truncate text-sm">{engine.name}</span>
+                <span className="min-w-0 flex-1 truncate text-sm">{label}</span>
                 {current && (
                   <span className="shrink-0 rounded-full bg-[#26734d]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#26734d]">
-                    当前
+                    {t('search_current')}
                   </span>
                 )}
                 {custom && (
                   <button
                     type="button"
-                    title={`删除「${engine.name}」`}
-                    aria-label={`删除「${engine.name}」`}
+                    title={t('search_remove', { name: label })}
+                    aria-label={t('search_remove', { name: label })}
                     onClick={() =>
                       void onSettings({
                         customSearchEngines: settings.customSearchEngines.filter(
@@ -100,14 +102,14 @@ export function SearchPanel({ settings, onSettings }: Props) {
         </ul>
       </PanelSection>
 
-      <PanelSection title="添加搜索引擎">
+      <PanelSection title={t('search_section_add')}>
         <div className={`${cardClass} space-y-2 p-3`}>
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
               value={engineName}
               onChange={(event) => setEngineName(event.target.value)}
-              placeholder="名称"
-              aria-label="搜索引擎名称"
+              placeholder={t('search_name')}
+              aria-label={t('search_nameLabel')}
               className={`${fieldClass} sm:w-32`}
             />
             <input
@@ -117,12 +119,12 @@ export function SearchPanel({ settings, onSettings }: Props) {
                 if (event.key === 'Enter') addEngine();
               }}
               placeholder="https://example.com/search?q={query}"
-              aria-label="搜索地址（用 {query} 表示关键词）"
+              aria-label={t('search_urlLabel')}
               className={`${fieldClass} flex-1 font-mono text-xs`}
             />
             <button type="button" className={primaryButton} onClick={addEngine}>
               <Plus size={15} />
-              添加
+              {t('search_add')}
             </button>
           </div>
           {error && <p className="text-xs text-red-600">{error}</p>}

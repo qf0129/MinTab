@@ -5,6 +5,7 @@ import {
   type BackgroundPreset,
   DEFAULT_BACKGROUND_PRESET,
 } from '../../../lib/constants';
+import { type MessageKey, t } from '../../../lib/i18n';
 import type { Settings } from '../../../lib/types';
 import { PanelSection } from './ui';
 
@@ -20,16 +21,28 @@ const MAX_BACKGROUND_EDGE = 1920;
 const TARGET_DATA_URL_CHARS = 900 * 1024;
 
 const BOOKMARK_SIZES = [
-  { id: 'small', label: '小' },
-  { id: 'medium', label: '中' },
-  { id: 'large', label: '大' },
-] as const;
+  { id: 'small', labelKey: 'appearance_size_small' },
+  { id: 'medium', labelKey: 'appearance_size_medium' },
+  { id: 'large', labelKey: 'appearance_size_large' },
+] as const satisfies readonly { id: string; labelKey: MessageKey }[];
 
 const CARD_OPACITIES = [
-  { id: 'clear', label: '通透' },
-  { id: 'medium', label: '适中' },
-  { id: 'solid', label: '厚重' },
-] as const;
+  {
+    id: 'clear',
+    labelKey: 'appearance_opacity_clear',
+    hintKey: 'appearance_opacity_clearHint',
+  },
+  {
+    id: 'medium',
+    labelKey: 'appearance_opacity_medium',
+    hintKey: 'appearance_opacity_mediumHint',
+  },
+  {
+    id: 'solid',
+    labelKey: 'appearance_opacity_solid',
+    hintKey: 'appearance_opacity_solidHint',
+  },
+] as const satisfies readonly { id: string; labelKey: MessageKey; hintKey: MessageKey }[];
 
 /**
  * Downscale and re-encode the picked image before storing it.
@@ -73,17 +86,17 @@ export function AppearancePanel({ settings, onSettings }: Props) {
     if (!file) return;
     setBackgroundError('');
     if (!file.type.startsWith('image/')) {
-      setBackgroundError('请选择图片文件');
+      setBackgroundError(t('appearance_notImage'));
       return;
     }
     if (file.size > MAX_SOURCE_BYTES) {
-      setBackgroundError('图片不能超过 5 MB');
+      setBackgroundError(t('appearance_tooLarge'));
       return;
     }
     try {
       await onSettings({ backgroundImage: await compressBackground(file) });
     } catch {
-      setBackgroundError('图片处理失败，请换一张格式为 JPG/PNG 的图片');
+      setBackgroundError(t('appearance_processFailed'));
     } finally {
       if (backgroundInputRef.current) backgroundInputRef.current.value = '';
     }
@@ -96,7 +109,7 @@ export function AppearancePanel({ settings, onSettings }: Props) {
 
   return (
     <div className="space-y-6">
-      <PanelSection title="背景">
+      <PanelSection title={t('appearance_background')}>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
           {BACKGROUND_PRESETS.map((preset) => (
             <PresetCard
@@ -112,7 +125,7 @@ export function AppearancePanel({ settings, onSettings }: Props) {
             type="button"
             onClick={() => backgroundInputRef.current?.click()}
             aria-pressed={Boolean(background)}
-            aria-label={background ? '更换自定义背景图片' : '使用自己的背景图片'}
+            aria-label={background ? t('appearance_changeCustom') : t('appearance_useCustom')}
             className={`focus-ring overflow-hidden rounded-lg border text-left transition ${
               background
                 ? 'border-[#176b61] ring-2 ring-[#176b61]/20'
@@ -135,7 +148,7 @@ export function AppearancePanel({ settings, onSettings }: Props) {
               {!background && <ImagePlus size={18} className="text-black/35" />}
             </span>
             <span className="flex items-center justify-between gap-1 border-t border-black/6 bg-white/85 px-2 py-1">
-              <span className="truncate text-[11px] font-medium">自定义</span>
+              <span className="truncate text-[11px] font-medium">{t('appearance_custom')}</span>
               {background && <Check size={12} className="shrink-0 text-[#176b61]" />}
             </span>
           </button>
@@ -159,16 +172,16 @@ export function AppearancePanel({ settings, onSettings }: Props) {
             className="focus-ring mt-2 inline-flex items-center gap-1 rounded px-1 text-xs text-black/45 transition hover:text-red-600"
           >
             <Trash2 size={12} />
-            移除自定义背景
+            {t('appearance_removeCustom')}
           </button>
         )}
         {backgroundError && <p className="mt-2 text-xs text-red-600">{backgroundError}</p>}
       </PanelSection>
 
-      <PanelSection title="书签卡片">
+      <PanelSection title={t('appearance_cards')}>
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <span className="w-14 shrink-0 text-xs text-black/50">尺寸</span>
+            <span className="w-14 shrink-0 text-xs text-black/50">{t('appearance_size')}</span>
             <div className="inline-flex rounded-lg border border-black/8 bg-black/[0.03] p-1">
               {BOOKMARK_SIZES.map((size) => {
                 const selected = settings.newTabBookmarkSize === size.id;
@@ -184,14 +197,14 @@ export function AppearancePanel({ settings, onSettings }: Props) {
                         : 'text-black/55 hover:text-black/75'
                     }`}
                   >
-                    {size.label}
+                    {t(size.labelKey)}
                   </button>
                 );
               })}
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="w-14 shrink-0 text-xs text-black/50">透明度</span>
+            <span className="w-14 shrink-0 text-xs text-black/50">{t('appearance_opacity')}</span>
             <div className="inline-flex rounded-lg border border-black/8 bg-black/[0.03] p-1">
               {CARD_OPACITIES.map((option) => {
                 const selected = settings.cardOpacity === option.id;
@@ -201,20 +214,14 @@ export function AppearancePanel({ settings, onSettings }: Props) {
                     type="button"
                     onClick={() => void onSettings({ cardOpacity: option.id })}
                     aria-pressed={selected}
-                    title={
-                      option.id === 'clear'
-                        ? '背景透出最多，适合浅色背景'
-                        : option.id === 'solid'
-                          ? '卡片更实，适合深色或花哨背景'
-                          : '默认，兼顾透出与可读性'
-                    }
+                    title={t(option.hintKey)}
                     className={`focus-ring rounded-md px-4 py-1.5 text-sm transition ${
                       selected
                         ? 'bg-white font-medium text-[#176b61] shadow-sm'
                         : 'text-black/55 hover:text-black/75'
                     }`}
                   >
-                    {option.label}
+                    {t(option.labelKey)}
                   </button>
                 );
               })}
@@ -239,7 +246,7 @@ function PresetCard({ preset, selected, onClick }: PresetCardProps) {
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      aria-label={`使用「${preset.name}」背景`}
+      aria-label={t('appearance_usePreset', { name: t(preset.labelKey) })}
       className={`focus-ring overflow-hidden rounded-lg border text-left transition ${
         selected
           ? 'border-[#176b61] ring-2 ring-[#176b61]/20'
@@ -257,7 +264,7 @@ function PresetCard({ preset, selected, onClick }: PresetCardProps) {
         aria-hidden
       />
       <span className="flex items-center justify-between gap-1 border-t border-black/6 bg-white/85 px-2 py-1">
-        <span className="truncate text-[11px] font-medium">{preset.name}</span>
+        <span className="truncate text-[11px] font-medium">{t(preset.labelKey)}</span>
         {selected && <Check size={12} className="shrink-0 text-[#176b61]" />}
       </span>
     </button>

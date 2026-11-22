@@ -1,6 +1,7 @@
 import { Trash2, X } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
 import { removeBookmarkNode, updateBookmarkNode } from '../lib/browser-bookmarks';
+import { t } from '../lib/i18n';
 import type { BrowserBookmarkNode } from '../lib/types';
 
 interface Props {
@@ -28,7 +29,7 @@ export function BookmarkEditDialog({ node, onClose, onChanged }: Props) {
       const parsed = new URL(nextUrl);
       if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error();
     } catch {
-      setError('请输入有效的 HTTP(S) 链接');
+      setError(t('bookmarkDialog_invalidUrl'));
       return;
     }
     setBusy(true);
@@ -37,21 +38,21 @@ export function BookmarkEditDialog({ node, onClose, onChanged }: Props) {
       onChanged();
       onClose();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '保存失败');
+      setError(reason instanceof Error ? reason.message : t('bookmarkDialog_saveFailed'));
     } finally {
       setBusy(false);
     }
   };
 
   const remove = async () => {
-    if (!confirm('确认删除这个书签？')) return;
+    if (!confirm(t('bookmarkDialog_confirmDelete'))) return;
     setBusy(true);
     try {
       await removeBookmarkNode(node.id);
       onChanged();
       onClose();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '删除失败');
+      setError(reason instanceof Error ? reason.message : t('bookmarkDialog_deleteFailed'));
       setBusy(false);
     }
   };
@@ -61,27 +62,27 @@ export function BookmarkEditDialog({ node, onClose, onChanged }: Props) {
       <button
         type="button"
         className="absolute inset-0 cursor-default"
-        aria-label="关闭书签对话框"
+        aria-label={t('bookmarkDialog_close')}
         onClick={onClose}
       />
       <form
         onSubmit={submit}
         className="surface relative w-full max-w-sm rounded-lg bg-white p-5"
-        aria-label="编辑书签"
+        aria-label={t('bookmarkDialog_title')}
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-base font-semibold">编辑书签</h2>
+          <h2 className="text-base font-semibold">{t('bookmarkDialog_title')}</h2>
           <button
             type="button"
             onClick={onClose}
             className="focus-ring rounded p-1 text-black/45 hover:bg-black/5"
-            title="关闭"
+            title={t('dialog_close')}
           >
             <X size={18} />
           </button>
         </div>
         <label className="mb-3 block text-xs font-medium text-black/60">
-          标题
+          {t('bookmarkDialog_name')}
           <input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
@@ -89,7 +90,7 @@ export function BookmarkEditDialog({ node, onClose, onChanged }: Props) {
           />
         </label>
         <label className="mb-2 block text-xs font-medium text-black/60">
-          链接
+          {t('bookmarkDialog_url')}
           <input
             value={url}
             onChange={(event) => setUrl(event.target.value)}
@@ -106,7 +107,7 @@ export function BookmarkEditDialog({ node, onClose, onChanged }: Props) {
             className="focus-ring flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
           >
             <Trash2 size={15} />
-            删除
+            {t('dialog_delete')}
           </button>
           <div className="ml-auto flex gap-2">
             <button
@@ -114,14 +115,14 @@ export function BookmarkEditDialog({ node, onClose, onChanged }: Props) {
               onClick={onClose}
               className="focus-ring rounded-md border border-black/12 px-4 py-2 text-sm hover:bg-black/4"
             >
-              取消
+              {t('dialog_cancel')}
             </button>
             <button
               type="submit"
               disabled={busy}
               className="focus-ring rounded-md bg-[#26734d] px-4 py-2 text-sm font-medium text-white hover:bg-[#1f6140] disabled:opacity-50"
             >
-              保存
+              {t('dialog_save')}
             </button>
           </div>
         </div>

@@ -70,10 +70,11 @@ Edge 用同一个 zip，不需要额外构建。
 
 - [ ] 应用图标（`public/icon*.png`）是最终版本，未被 `WXT_PRODUCT_NAME` 之外的品牌残留影响
 - [ ] `PRIVACY.md` 发布成可公开访问的 URL，填入商店"隐私政策"字段
-- [ ] 权限说明：`bookmarks`（产品核心）、`storage`（本地设置）、`favicon`（站点图标）
+- [ ] 权限说明：`bookmarks`（产品核心）、`storage`（本地设置）、`favicon`（站点图标）、`sidePanel`（原生侧边栏）
 - [ ] 单一用途说明与实际功能一致
 - [ ] 数据使用声明：会上传书签快照与设备信息（browser/version/platform），需如实勾选
-- [ ] 截图与描述；中文与英文各一份（如有）
+- [ ] 截图与描述：**每种 `_locales` 语言一条清单**（现在是 `en` / `zh_CN` / `zh_TW`），
+      Edge 后台按包里的语言文件自动列出；不想维护的语言可以删掉那一行，但界面对应语言仍会显示
 - [ ] 扩展 ID 固定后，如果后端有 `ALLOWED_EXTENSION_IDS` 之类的白名单，记得更新
 
 ## Firefox
@@ -97,6 +98,8 @@ Edge 用同一个 zip，不需要额外构建。
 
 ## Fork 发布
 
-- 用 `WXT_PRODUCT_NAME` 改名，替换 `public/icon*.png`，遵守 [TRADEMARK.md](../TRADEMARK.md)。
+- 用 `WXT_PRODUCT_NAME` 改名（会写死名称、跳过 `_locales`），或直接改
+  `public/_locales/*/messages.json` 里的 `extName` / `extDescription`；替换 `public/icon*.png`，
+  遵守 [TRADEMARK.md](../TRADEMARK.md)。
 - 自己的后端请按 [api-contract.md](api-contract.md) 实现；没有后端就用 `WXT_BACKEND=local`。
 - 不要把官方域名写进 fork 的发布构建，否则用户的数据会发到官方实例。

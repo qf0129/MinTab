@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { PRODUCT_NAME } from '../../../lib/constants';
+import { type MessageKey, t } from '../../../lib/i18n';
 import type { BrowserBookmarkNode, Settings, User } from '../../../lib/types';
 import { AboutPanel } from './AboutPanel';
 import { AppearancePanel } from './AppearancePanel';
@@ -36,34 +37,30 @@ interface Props {
 
 interface SectionDef {
   id: 'sync' | 'appearance' | 'search' | 'about';
-  label: string;
-  title: string;
+  /** Navigation label and page title; both are `_locales` keys. */
+  labelKey: MessageKey;
   icon: typeof CloudUpload;
 }
 
 const SECTIONS = [
   {
     id: 'appearance',
-    label: '外观',
-    title: '外观',
+    labelKey: 'settings_appearance',
     icon: Palette,
   },
   {
     id: 'search',
-    label: '搜索',
-    title: '搜索',
+    labelKey: 'settings_search',
     icon: SearchIcon,
   },
   {
     id: 'sync',
-    label: '账号与同步',
-    title: '账号与同步',
+    labelKey: 'settings_sync',
     icon: CloudUpload,
   },
   {
     id: 'about',
-    label: '关于',
-    title: '关于',
+    labelKey: 'settings_about',
     icon: Info,
   },
 ] as const satisfies readonly SectionDef[];
@@ -132,7 +129,7 @@ export function SettingsDialog({
       <button
         type="button"
         className="absolute inset-0 cursor-default bg-[#0f1a1c]/45 backdrop-blur-sm"
-        aria-label="关闭设置"
+        aria-label={t('settings_close')}
         onClick={onClose}
       />
       <div
@@ -149,12 +146,12 @@ export function SettingsDialog({
               <SettingsIcon size={16} />
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-semibold leading-5">设置</p>
+              <p className="text-sm font-semibold leading-5">{t('settings_title')}</p>
               <p className="text-[11px] leading-4 text-black/40">{PRODUCT_NAME}</p>
             </div>
           </div>
-          <nav aria-label="设置分类" className="space-y-1">
-            {SECTIONS.map(({ id, label, icon: Icon }) => {
+          <nav aria-label={t('settings_nav')} className="space-y-1">
+            {SECTIONS.map(({ id, labelKey, icon: Icon }) => {
               const selected = id === section;
               return (
                 <button
@@ -169,26 +166,26 @@ export function SettingsDialog({
                   }`}
                 >
                   <Icon size={16} className="shrink-0" />
-                  <span className="truncate">{label}</span>
+                  <span className="truncate">{t(labelKey)}</span>
                 </button>
               );
             })}
           </nav>
           <p className="mt-auto px-2 text-[11px] leading-4 text-black/40">
-            设置只保存在本机，不会随书签一起上传。
+            {t('settings_footnote')}
           </p>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex items-center gap-3 border-b border-black/8 px-5 py-3 sm:px-6">
             <h2 id="settings-title" className="min-w-0 flex-1 truncate text-base font-semibold">
-              {active.title}
+              {t(active.labelKey)}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              title="关闭（Esc）"
-              aria-label="关闭设置"
+              title={t('settings_closeHint')}
+              aria-label={t('settings_close')}
               className="focus-ring -mr-1 shrink-0 rounded-lg p-2 text-black/40 transition hover:bg-black/[0.05] hover:text-black/70"
             >
               <X size={18} />
@@ -196,10 +193,10 @@ export function SettingsDialog({
           </header>
 
           <nav
-            aria-label="设置分类"
+            aria-label={t('settings_nav')}
             className="flex gap-1 overflow-x-auto border-b border-black/8 px-2 py-2 md:hidden"
           >
-            {SECTIONS.map(({ id, label, icon: Icon }) => {
+            {SECTIONS.map(({ id, labelKey, icon: Icon }) => {
               const selected = id === section;
               return (
                 <button
@@ -214,7 +211,7 @@ export function SettingsDialog({
                   }`}
                 >
                   <Icon size={14} className="shrink-0" />
-                  {label}
+                  {t(labelKey)}
                 </button>
               );
             })}

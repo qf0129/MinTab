@@ -1,4 +1,5 @@
 import { PRODUCT_NAME } from './constants';
+import { t } from './i18n';
 import type { BrowserBookmarkNode } from './types';
 
 /**
@@ -168,7 +169,7 @@ function renderNodes(nodes: BrowserBookmarkNode[], depth: number): string {
   for (const node of nodes) {
     if (Array.isArray(node.children)) {
       html += `${indent}<DT><H3${addFolderAttrs(node, depth)}>${escapeHtml(
-        node.title || '未命名文件夹'
+        node.title || t('restore_untitledFolder')
       )}</H3>\n`;
       html += `${indent}<DL><p>\n`;
       html += renderNodes(node.children, depth + 1);

@@ -1,0 +1,249 @@
+{
+  "extName": { "message": "MinTab" },
+  "extDescription": {
+    "message": "See your native browser bookmarks on the new tab page: folder groups, search, inline editing and optional sync to a backend you host yourself."
+  },
+
+  "app_loading": { "message": "Loading…" },
+  "app_settings": { "message": "Settings" },
+  "app_search": { "message": "Search" },
+  "app_searchPlaceholder": { "message": "Search with {name}" },
+  "app_bookmarksLoading": { "message": "Reading browser bookmarks…" },
+  "app_noBookmarks": { "message": "No bookmarks yet. Add a few in your browser first." },
+  "app_bookmarksLabel": { "message": "Bookmarks" },
+  "app_untitled": { "message": "Untitled" },
+  "app_expand": { "message": "Expand “{title}”" },
+  "app_collapse": { "message": "Collapse “{title}”" },
+  "app_linkOpened": {
+    "message": "Authorization page opened. Click “Allow” there, then come back to this tab."
+  },
+  "app_linkOpenFailed": { "message": "Could not open the authorization page" },
+  "app_unlinked": { "message": "Disconnected. Your web session is unchanged." },
+  "app_uploaded": { "message": "Uploaded {count} bookmarks" },
+  "app_uploadedTrimmed": {
+    "message": "Uploaded {count} bookmarks and removed {removed} old snapshots"
+  },
+  "app_uploadFailed": { "message": "Upload failed" },
+  "app_moveFailed": { "message": "Could not move the card" },
+
+  "board_empty": { "message": "This folder is empty" },
+  "board_folderTitle": { "message": "{title} ({count} bookmarks)" },
+  "board_folderAria": { "message": "{title} ({count})" },
+  "board_editBookmark": { "message": "Edit bookmark" },
+  "board_editFolder": { "message": "Edit folder" },
+  "board_edit": { "message": "Edit {title}" },
+
+  "dialog_close": { "message": "Close" },
+  "dialog_cancel": { "message": "Cancel" },
+  "dialog_save": { "message": "Save" },
+  "dialog_delete": { "message": "Delete" },
+
+  "bookmarkDialog_title": { "message": "Edit bookmark" },
+  "bookmarkDialog_close": { "message": "Close bookmark dialog" },
+  "bookmarkDialog_name": { "message": "Title" },
+  "bookmarkDialog_url": { "message": "Link" },
+  "bookmarkDialog_invalidUrl": { "message": "Enter a valid HTTP(S) link" },
+  "bookmarkDialog_saveFailed": { "message": "Could not save" },
+  "bookmarkDialog_deleteFailed": { "message": "Could not delete" },
+  "bookmarkDialog_confirmDelete": { "message": "Delete this bookmark?" },
+
+  "folderDialog_title": { "message": "Edit folder" },
+  "folderDialog_close": { "message": "Close folder dialog" },
+  "folderDialog_name": { "message": "Folder name" },
+  "folderDialog_nameRequired": { "message": "Enter a folder name" },
+  "folderDialog_count": { "message": "{count} bookmarks" },
+  "folderDialog_delete": { "message": "Delete folder" },
+  "folderDialog_confirmDelete": { "message": "Delete the folder and its bookmarks" },
+
+  "settings_title": { "message": "Settings" },
+  "settings_nav": { "message": "Settings sections" },
+  "settings_close": { "message": "Close settings" },
+  "settings_closeHint": { "message": "Close (Esc)" },
+  "settings_footnote": {
+    "message": "Settings stay on this device and are never uploaded with your bookmarks."
+  },
+  "settings_appearance": { "message": "Appearance" },
+  "settings_search": { "message": "Search" },
+  "settings_sync": { "message": "Account & sync" },
+  "settings_about": { "message": "About" },
+
+  "appearance_background": { "message": "Background" },
+  "appearance_custom": { "message": "Custom" },
+  "appearance_useCustom": { "message": "Use your own background image" },
+  "appearance_changeCustom": { "message": "Replace the custom background image" },
+  "appearance_removeCustom": { "message": "Remove custom background" },
+  "appearance_notImage": { "message": "Choose an image file" },
+  "appearance_tooLarge": { "message": "The image must be under 5 MB" },
+  "appearance_processFailed": {
+    "message": "Could not process the image. Try a JPG or PNG instead."
+  },
+  "appearance_cards": { "message": "Bookmark cards" },
+  "appearance_size": { "message": "Size" },
+  "appearance_size_small": { "message": "Small" },
+  "appearance_size_medium": { "message": "Medium" },
+  "appearance_size_large": { "message": "Large" },
+  "appearance_opacity": { "message": "Opacity" },
+  "appearance_opacity_clear": { "message": "Clear" },
+  "appearance_opacity_medium": { "message": "Balanced" },
+  "appearance_opacity_solid": { "message": "Solid" },
+  "appearance_opacity_clearHint": {
+    "message": "Lets the most background through; best on light backgrounds"
+  },
+  "appearance_opacity_mediumHint": { "message": "Default: balanced transparency and contrast" },
+  "appearance_opacity_solidHint": {
+    "message": "Denser cards; best on dark or busy backgrounds"
+  },
+  "appearance_usePreset": { "message": "Use the “{name}” background" },
+
+  "bg_mist": { "message": "Mist" },
+  "bg_ivory": { "message": "Ivory" },
+  "bg_graphite": { "message": "Graphite" },
+  "bg_dusk": { "message": "Dusk" },
+  "bg_ocean": { "message": "Sea salt" },
+  "bg_mint": { "message": "Mint" },
+  "bg_aurora": { "message": "Aurora" },
+  "bg_grid": { "message": "Grid" },
+  "bg_dots": { "message": "Dots" },
+  "bg_stripes": { "message": "Diagonal" },
+
+  "search_section_box": { "message": "Search box" },
+  "search_show": { "message": "Show the search box" },
+  "search_showHint": { "message": "When off, only the settings button stays in the header." },
+  "search_section_engines": { "message": "Search engines" },
+  "search_current": { "message": "Current" },
+  "search_remove": { "message": "Remove “{name}”" },
+  "search_section_add": { "message": "Add a search engine" },
+  "search_name": { "message": "Name" },
+  "search_nameLabel": { "message": "Search engine name" },
+  "search_urlLabel": { "message": "Search URL ({query} marks the keywords)" },
+  "search_add": { "message": "Add" },
+  "search_invalid": { "message": "Enter a name and an HTTP(S) URL containing {query}" },
+  "search_engine_google": { "message": "Google" },
+  "search_engine_bing": { "message": "Bing" },
+  "search_engine_baidu": { "message": "Baidu" },
+  "search_engine_duckduckgo": { "message": "DuckDuckGo" },
+
+  "sync_localTitle": { "message": "Local-only build" },
+  "sync_localBody": {
+    "message": "This build never uploads anything: bookmarks are read and edited on this device only, and accounts, cloud snapshots and restore are disabled."
+  },
+  "sync_account": { "message": "Account" },
+  "sync_accountHint": { "message": "Snapshots are stored under this account" },
+  "sync_connected": { "message": "Connected" },
+  "sync_accountPage": { "message": "Account page" },
+  "sync_unlink": { "message": "Disconnect" },
+  "sync_notConnected": { "message": "No account connected" },
+  "sync_notConnectedHint": {
+    "message": "Connect to upload and restore bookmarks across devices."
+  },
+  "sync_recheck": { "message": "Check again" },
+  "sync_connect": { "message": "Connect account" },
+  "sync_sessionFailed": { "message": "Could not check the session: {message}" },
+  "sync_retry": { "message": "Retry" },
+  "sync_upload": { "message": "Upload" },
+  "sync_localLinks": { "message": "{count} bookmarks on this device" },
+  "sync_lastUpload": { "message": "Last upload: {relative} · {time}" },
+  "sync_neverUploaded": { "message": "Not uploaded yet" },
+  "sync_uploading": { "message": "Uploading…" },
+  "sync_uploadAction": { "message": "Upload bookmarks" },
+
+  "restore_loadFailed": { "message": "Could not load upload history" },
+  "restore_reading": { "message": "Reading cloud snapshots…" },
+  "restore_empty": {
+    "message": "No snapshots in the cloud yet. Upload your current bookmarks first."
+  },
+  "restore_goUpload": { "message": "Upload now" },
+  "restore_selectLabel": { "message": "Choose a snapshot" },
+  "restore_option": { "message": "{browser} · {time} · {count} entries" },
+  "restore_latest": { "message": " (latest)" },
+  "restore_updating": { "message": "Refreshing the list…" },
+  "restore_section": { "message": "Restore" },
+  "restore_modeLabel": { "message": "Restore mode" },
+  "restore_merge": { "message": "Merge into this browser" },
+  "restore_replace": { "message": "Replace local bookmarks" },
+  "restore_mergeHint": {
+    "message": "Adds only links you do not have; nothing is deleted."
+  },
+  "restore_replaceHint": {
+    "message": "Deletes your other local bookmarks ({count} now) and asks once more before starting."
+  },
+  "restore_confirmReplace": {
+    "message": "This deletes {local} local bookmarks and replaces them with this snapshot ({total} entries).\n\nContinue?"
+  },
+  "restore_backup": { "message": "Back up local bookmarks before restoring" },
+  "restore_backupRequired": { "message": " (required for replace)" },
+  "restore_start": { "message": "Start restore" },
+  "restore_undo": { "message": "Undo last restore" },
+  "restore_fetching": { "message": "Fetching the snapshot…" },
+  "restore_writing": { "message": "Writing bookmarks…" },
+  "restore_undoing": { "message": "Undoing…" },
+  "restore_cancelled": { "message": "Cancelled; your bookmarks were not changed." },
+  "restore_done": { "message": "Done: {parts}." },
+  "restore_partCreated": { "message": "added {count}" },
+  "restore_partSkipped": { "message": "skipped {count}" },
+  "restore_partFailed": { "message": "failed {count}" },
+  "restore_partRemoved": { "message": "removed {count}" },
+  "restore_partSeparator": { "message": ", " },
+  "restore_progress": { "message": "Added {created} · Skipped {skipped}" },
+  "restore_progressFailed": { "message": " · Failed {failed}" },
+  "restore_backupDownloaded": { "message": "Backup downloaded: {file}" },
+  "restore_nothingToUndo": { "message": "Nothing to undo" },
+  "restore_undoMerge": {
+    "message": "Undone: removed the {changed} nodes this merge added{tail}."
+  },
+  "restore_undoMergeTail": { "message": ", {failed} could not be removed" },
+  "restore_undoReplace": {
+    "message": "Undone: your original bookmarks are back ({changed} nodes{tail})."
+  },
+  "restore_undoReplaceTail": { "message": ", {failed} failed" },
+  "restore_failed": { "message": "Restore failed" },
+  "restore_undoFailed": { "message": "Undo failed" },
+  "restore_backupFailed": {
+    "message": "Could not export a local backup, so replace was cancelled"
+  },
+  "restore_emptySnapshot": { "message": "This snapshot contains no bookmarks" },
+  "restore_tooMany": {
+    "message": "The snapshot has {total} nodes, over the {limit} limit for a single restore"
+  },
+  "restore_noRoots": { "message": "No usable bookmark folder in this browser" },
+  "restore_noticeMissingRoot": {
+    "message": "The snapshot's “{label}” has no matching local root folder, so its content was placed in “{host}/{label}” (local roots: {roots})"
+  },
+  "restore_imported": { "message": "Imported bookmarks" },
+  "restore_untitledFolder": { "message": "Untitled folder" },
+  "restore_staging": { "message": "{product} restore {time}" },
+  "restore_browser": { "message": "Browser" },
+  "restore_listSeparator": { "message": ", " },
+
+  "about_info": { "message": "Extension" },
+  "about_links": { "message": "Project links" },
+  "about_repo": { "message": "GitHub repository" },
+  "about_repoDetail": { "message": "github.com/qf0129/MinTab" },
+  "about_issues": { "message": "Report an issue" },
+  "about_issuesDetail": { "message": "Bugs and feature requests" },
+  "about_privacy": { "message": "Privacy policy" },
+  "about_privacyDetail": { "message": "What is read and what is uploaded" },
+  "about_license": { "message": "License" },
+  "about_licenseDetail": { "message": "MIT License" },
+  "about_privacySection": { "message": "Data & privacy" },
+  "about_privacyBody1": {
+    "message": "Bookmarks are read straight from the browser; a snapshot is sent to the sync service only when you click “Upload”."
+  },
+  "about_privacyBody2": {
+    "message": "Sync settings, the device id and the background image live only in storage.local and are never uploaded with your bookmarks."
+  },
+
+  "error_network": { "message": "Cannot reach the server" },
+  "error_requestFailed": { "message": "Request failed" },
+  "error_uploadFailed": { "message": "Upload failed" },
+  "error_historyFailed": { "message": "Could not load upload history" },
+  "error_snapshotFailed": { "message": "Could not fetch this snapshot" },
+  "error_limited": { "message": "This is a local-only build; account sync is disabled" },
+
+  "time_justNow": { "message": "Just now" },
+  "time_minutes": { "message": "{count} min ago" },
+  "time_hours": { "message": "{count} h ago" },
+  "time_days": { "message": "{count} d ago" },
+  "time_months": { "message": "{count} months ago" },
+  "time_years": { "message": "{count} years ago" }
+}

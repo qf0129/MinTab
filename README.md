@@ -61,11 +61,24 @@ bun dev                     # 监听构建，产物在 .output/chrome-mv3-dev
 | --- | --- | --- |
 | `WXT_SITE_BASE` | 后端地址；同时写进 `host_permissions` | `http://127.0.0.1:8787` |
 | `WXT_BACKEND` | `http` 或 `local`（纯本地，不联网） | `http` |
-| `WXT_PRODUCT_NAME` | 产品名，manifest 与界面同时生效 | `MinTab` |
-| `WXT_PRODUCT_DESCRIPTION` | manifest 描述 | 内置中文描述 |
+| `WXT_PRODUCT_NAME` | 产品名；覆盖 `_locales` 里的 `extName` | 未设置（用 `_locales`） |
+| `WXT_PRODUCT_DESCRIPTION` | manifest 描述；覆盖 `_locales` 里的 `extDescription` | 未设置（用 `_locales`） |
 | `WXT_STRICT_SITE` | `1` 时生产构建指向 localhost 直接失败 | 未设置 |
 
 改了 `WXT_SITE_BASE` 必须重新构建：它决定扩展被允许访问哪个源，不是运行时设置。
+
+### 多语言
+
+界面文案全部在 [`public/_locales`](public/_locales)：`en`（`default_locale`）、`zh_CN`、`zh_TW`，
+manifest 用 `__MSG_extName__` / `__MSG_extDescription__` 引用同名词条。
+
+- **跟随浏览器界面语言**，没有对应的 locale 就回落到 `en`（例如日语环境显示英文）。
+  这是浏览器按 `default_locale` 自动做的，代码里没有任何语言判定。
+- 页面文案统一走 [`lib/i18n.ts`](lib/i18n.ts) 的 `t('key')`，key 的类型直接来自 `en/messages.json`，
+  写错 key 编译期就会报错。
+- **加一种语言**：新建 `public/_locales/<locale>/messages.json` 并补全同样的 key 即可，不需要改代码。
+- 三个约束由 [`test/i18n.test.ts`](test/i18n.test.ts) 守着：各语言 key 集合一致、`{count}` 这类占位符
+  不多不少、源码里出现的 `t('…')` 都能在 `en` 里找到。
 
 ### 纯本地模式
 

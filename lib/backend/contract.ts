@@ -1,4 +1,5 @@
 import type { SnapshotNode } from '../bookmark-transfer';
+import { t } from '../i18n';
 import type { User } from '../types';
 
 /**
@@ -60,4 +61,6 @@ export interface UploadSummary {
 }
 
 /** User-facing explanation shown by local-only builds. */
-export const LOCAL_ONLY_MESSAGE = '当前构建为纯本地模式，未启用账号同步';
+export function localOnlyMessage(): string {
+  return t('error_limited');
+}

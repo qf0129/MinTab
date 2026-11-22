@@ -1,18 +1,25 @@
 import { browser } from 'wxt/browser';
 import type { SnapshotNode } from '../bookmark-transfer';
 import { getDeviceInfo } from '../device';
+import { type MessageKey, t } from '../i18n';
 import { loadExtensionToken, saveLastUpload } from '../storage';
 import { request } from '../transport';
 import type { BrowserBookmarkNode, User } from '../types';
 import type { SessionState, SyncBackend, UploadResult, UploadSummary } from './contract';
 
-/** Turn a failed transport response into the message the UI shows. */
+/**
+ * Turn a failed transport response into the message the UI shows.
+ *
+ * The server's own `error` string is passed through (it is written by whoever
+ * operates the backend, in their language); transport-level failures are
+ * translated locally.
+ */
 function failureMessage(
   response: { status: number; data: { error?: string } },
-  fallback: string
+  fallback: MessageKey
 ): string {
-  if (response.status === 0) return '无法连接服务器';
-  return response.data?.error || `${fallback}（${response.status}）`;
+  if (response.status === 0) return t('error_network');
+  return response.data?.error || `${t(fallback)} (${response.status})`;
 }
 
 /**
@@ -34,7 +41,7 @@ export function createHttpBackend(): SyncBackend {
         return { status: 'authenticated', user: response.data };
       }
       if (response.status === 401) return { status: 'anonymous' };
-      return { status: 'error', message: failureMessage(response, '请求失败') };
+      return { status: 'error', message: failureMessage(response, 'error_requestFailed') };
     },
 
     async upload(): Promise<UploadResult> {
@@ -49,7 +56,7 @@ export function createHttpBackend(): SyncBackend {
           exportedAt: Date.now(),
         }
       );
-      if (!response.ok) throw new Error(failureMessage(response, '上传失败'));
+      if (!response.ok) throw new Error(failureMessage(response, 'error_uploadFailed'));
       await saveLastUpload(response.data.uploadedAt);
       return {
         count: response.data.count,
@@ -60,14 +67,14 @@ export function createHttpBackend(): SyncBackend {
 
     async listUploads(limit: number): Promise<UploadSummary[]> {
       const response = await request<{ uploads: UploadSummary[] }>(`/api/uploads?limit=${limit}`);
-      if (!response.ok) throw new Error(failureMessage(response, '加载上传记录失败'));
+      if (!response.ok) throw new Error(failureMessage(response, 'error_historyFailed'));
       return response.data.uploads ?? [];
     },
 
     async getSnapshot(id: number): Promise<SnapshotNode[]> {
       const response = await request<{ data?: SnapshotNode[] }>(`/api/uploads/${id}`);
       if (!response.ok || !Array.isArray(response.data?.data)) {
-        throw new Error(failureMessage(response, '无法获取这份快照'));
+        throw new Error(failureMessage(response, 'error_snapshotFailed'));
       }
       return response.data.data;
     },

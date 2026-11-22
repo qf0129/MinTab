@@ -27,9 +27,11 @@ import {
   BACKGROUND_PRESETS,
   DEFAULT_BACKGROUND_PRESET,
   SEARCH_ENGINES,
+  searchEngineLabel,
   type Theme,
   themeFor,
 } from '../../lib/constants';
+import { applyDocumentLanguage, t } from '../../lib/i18n';
 import { beginExtensionLink, completePendingLink, unlinkExtension } from '../../lib/link';
 import { loadLastUpload } from '../../lib/storage';
 import type { BrowserBookmarkNode, User } from '../../lib/types';
@@ -82,7 +84,7 @@ function GroupHeader({
       type="button"
       onClick={onToggle}
       aria-expanded={!collapsed}
-      title={collapsed ? `展开「${title}」` : `折叠「${title}」`}
+      title={collapsed ? t('app_expand', { title }) : t('app_collapse', { title })}
       className="focus-ring group flex w-full items-center gap-2 rounded-lg px-2 py-1 text-left text-xs font-semibold transition hover:brightness-105"
       style={highlighted ? { background: theme.accentSoft } : undefined}
     >
@@ -204,9 +206,9 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
   const connectAccount = async () => {
     try {
       await beginExtensionLink();
-      notify('已打开授权页，在网页端点击“允许连接”后切回本标签页');
+      notify(t('app_linkOpened'));
     } catch (error) {
-      notify(error instanceof Error ? error.message : '无法打开授权页');
+      notify(error instanceof Error ? error.message : t('app_linkOpenFailed'));
     }
   };
 
@@ -215,6 +217,9 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
       setLastUpload(uploadedAt);
     });
   }, [refreshSession]);
+
+  // Fonts, line-breaking and screen readers follow `<html lang>`, not `getMessage`.
+  useEffect(applyDocumentLanguage, []);
 
   useEffect(() => {
     const onFocus = () => void refreshSession();
@@ -254,6 +259,7 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
     name: 'Google',
     url: 'https://www.google.com/search?q={query}',
   };
+  const selectedEngineLabel = searchEngineLabel(selectedEngine);
   const theme: Theme = themeFor(settings?.cardOpacity ?? 'medium');
   const preset =
     BACKGROUND_PRESETS.find((item) => item.id === settings?.backgroundPreset) ??
@@ -326,11 +332,11 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
       setUploadTick((value) => value + 1);
       notify(
         result.removed > 0
-          ? `已上传 ${result.count} 条书签，自动清理了 ${result.removed} 条旧快照`
-          : `已上传 ${result.count} 条书签`
+          ? t('app_uploadedTrimmed', { count: result.count, removed: result.removed })
+          : t('app_uploaded', { count: result.count })
       );
     } catch (error) {
-      notify(error instanceof Error ? error.message : '上传失败');
+      notify(error instanceof Error ? error.message : t('app_uploadFailed'));
       void refreshSession();
     } finally {
       setUploading(false);
@@ -346,7 +352,7 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
     try {
       await moveBookmarkNode(node.id, oldIndex, newIndex);
     } catch (error) {
-      notify(error instanceof Error ? error.message : '移动失败');
+      notify(error instanceof Error ? error.message : t('app_moveFailed'));
       // Let the board roll its optimistic order back.
       throw error;
     }
@@ -356,7 +362,7 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
   if (!settings || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#e3e6e9] text-sm text-black/45">
-        加载中…
+        {t('app_loading')}
       </div>
     );
   }
@@ -408,14 +414,14 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
               >
                 {engines.map((engine) => (
                   <option key={engine.id} value={engine.id}>
-                    {engine.name}
+                    {searchEngineLabel(engine)}
                   </option>
                 ))}
               </select>
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder={`使用 ${selectedEngine.name} 搜索`}
+                placeholder={t('app_searchPlaceholder', { name: selectedEngineLabel })}
                 className={`min-w-0 bg-transparent outline-none placeholder:opacity-55 ${
                   sidepanel ? 'px-3 text-[13px]' : 'px-4 text-sm'
                 }`}
@@ -432,7 +438,7 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
                   boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.28)',
                 }}
               >
-                搜索
+                {t('app_search')}
               </button>
             </form>
           )}
@@ -452,7 +458,7 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
               }}
               className="focus-ring flex size-10 items-center justify-center rounded-full transition hover:brightness-105"
               style={{ background: theme.chip, border: `1px solid ${theme.line}` }}
-              title="设置"
+              title={t('app_settings')}
             >
               <SettingsIcon size={19} />
             </button>
@@ -465,14 +471,14 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
             style={{ background: theme.chip, border: `1px solid ${theme.line}` }}
           >
             <Loader2 size={16} className="animate-spin" />
-            正在读取浏览器书签…
+            {t('app_bookmarksLoading')}
           </div>
         ) : roots.length === 0 ? (
           <div
             className="mx-auto mt-10 flex max-w-md flex-col items-center rounded-2xl px-6 py-14 text-center text-sm opacity-70"
             style={{ background: theme.chip, border: `1px solid ${theme.line}` }}
           >
-            浏览器中还没有书签，先在浏览器里添加一些吧。
+            {t('app_noBookmarks')}
           </div>
         ) : (
           roots.map((root) => {
@@ -485,7 +491,7 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
                   style={{ background: theme.folder, border: `1px solid ${theme.line}` }}
                 >
                   <GroupHeader
-                    title={root.title || '书签'}
+                    title={root.title || t('app_bookmarksLabel')}
                     count={countBookmarks(root)}
                     collapsed={rootCollapsed}
                     theme={theme}
@@ -580,7 +586,7 @@ export function NewTabApp({ mode = 'newtab' }: NewTabAppProps) {
           await unlinkExtension();
           setUser(null);
           setSessionError('');
-          notify('已断开连接，网页版登录状态不受影响');
+          notify(t('app_unlinked'));
         }}
         onPauseRefresh={pause}
         onResumeRefresh={resume}

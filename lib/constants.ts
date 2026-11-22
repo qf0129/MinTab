@@ -1,3 +1,4 @@
+import { type MessageKey, t } from './i18n';
 import type { CardOpacity, SearchEngine, Settings } from './types';
 
 /** Base URL of the web app, without a trailing slash. */
@@ -32,7 +33,8 @@ export const PENDING_LINK_KEY = 'mintab_pending_link';
  */
 export interface BackgroundPreset {
   id: string;
-  name: string;
+  /** `_locales` key for the preset's display name. */
+  labelKey: MessageKey;
   backgroundImage: string;
   backgroundColor: string;
   backgroundSize?: string;
@@ -41,7 +43,7 @@ export interface BackgroundPreset {
 
 export const DEFAULT_BACKGROUND_PRESET: BackgroundPreset = {
   id: 'mist',
-  name: '高级灰',
+  labelKey: 'bg_mist',
   backgroundImage:
     'radial-gradient(110% 80% at 14% 0%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 58%), radial-gradient(90% 75% at 88% 100%, rgba(60, 68, 78, 0.14) 0%, rgba(60, 68, 78, 0) 62%), linear-gradient(150deg, #f0f2f4 0%, #e3e7ea 34%, #d3d9de 68%, #c2cad0 100%)',
   backgroundColor: '#e3e7ea',
@@ -51,52 +53,52 @@ export const BACKGROUND_PRESETS: BackgroundPreset[] = [
   DEFAULT_BACKGROUND_PRESET,
   {
     id: 'ivory',
-    name: '象牙',
+    labelKey: 'bg_ivory',
     backgroundImage: 'none',
     backgroundColor: '#f4efe4',
   },
   {
     id: 'graphite',
-    name: '石墨',
+    labelKey: 'bg_graphite',
     backgroundImage: 'none',
     backgroundColor: '#26302d',
   },
   {
     id: 'dusk',
-    name: '暮色',
+    labelKey: 'bg_dusk',
     backgroundImage: 'linear-gradient(150deg, #fbe8d3 0%, #f3c9c0 42%, #b9a3c9 100%)',
     backgroundColor: '#f3c9c0',
   },
   {
     id: 'ocean',
-    name: '海盐',
+    labelKey: 'bg_ocean',
     backgroundImage: 'linear-gradient(150deg, #e6f4f6 0%, #cfe4f2 48%, #c3d2ec 100%)',
     backgroundColor: '#cfe4f2',
   },
   {
     id: 'mint',
-    name: '薄荷',
+    labelKey: 'bg_mint',
     backgroundImage:
       'radial-gradient(circle at 20% 10%, rgba(143, 216, 184, 0.55), transparent 55%), radial-gradient(circle at 85% 80%, rgba(94, 160, 205, 0.35), transparent 60%), linear-gradient(160deg, #f7fdfa 0%, #e8f4ef 100%)',
     backgroundColor: '#e8f4ef',
   },
   {
     id: 'aurora',
-    name: '极光',
+    labelKey: 'bg_aurora',
     backgroundImage:
       'conic-gradient(from 210deg at 72% 18%, #d9f0e8, #eef6f9, #f7e7d8, #dfe9fa, #d9f0e8)',
     backgroundColor: '#eef6f9',
   },
   {
     id: 'grid',
-    name: '网格',
+    labelKey: 'bg_grid',
     backgroundImage:
       'repeating-linear-gradient(0deg, rgba(23, 107, 97, 0.10) 0 1px, transparent 1px 32px), repeating-linear-gradient(90deg, rgba(23, 107, 97, 0.10) 0 1px, transparent 1px 32px)',
     backgroundColor: '#f2f8f6',
   },
   {
     id: 'dots',
-    name: '圆点',
+    labelKey: 'bg_dots',
     backgroundImage: 'radial-gradient(rgba(23, 107, 97, 0.18) 1.5px, transparent 1.6px)',
     backgroundColor: '#f7fbf9',
     backgroundSize: '22px 22px',
@@ -104,7 +106,7 @@ export const BACKGROUND_PRESETS: BackgroundPreset[] = [
   },
   {
     id: 'stripes',
-    name: '斜纹',
+    labelKey: 'bg_stripes',
     backgroundImage:
       'repeating-linear-gradient(135deg, rgba(23, 107, 97, 0.08) 0 14px, rgba(23, 107, 97, 0) 14px 28px)',
     backgroundColor: '#f4faf7',
@@ -188,13 +190,33 @@ export const SEARCH_ENGINES: SearchEngine[] = [
   {
     id: 'google',
     name: 'Google',
+    labelKey: 'search_engine_google',
     url: 'https://www.google.com/search?q={query}',
   },
-  { id: 'bing', name: 'Bing', url: 'https://www.bing.com/search?q={query}' },
-  { id: 'baidu', name: '百度', url: 'https://www.baidu.com/s?wd={query}' },
+  {
+    id: 'bing',
+    name: 'Bing',
+    labelKey: 'search_engine_bing',
+    url: 'https://www.bing.com/search?q={query}',
+  },
+  {
+    id: 'baidu',
+    name: 'Baidu',
+    labelKey: 'search_engine_baidu',
+    url: 'https://www.baidu.com/s?wd={query}',
+  },
   {
     id: 'duckduckgo',
     name: 'DuckDuckGo',
+    labelKey: 'search_engine_duckduckgo',
     url: 'https://duckduckgo.com/?q={query}',
   },
 ];
+
+/**
+ * Display name of a search engine: built-ins follow the browser UI language,
+ * user-added ones keep the name they were created with.
+ */
+export function searchEngineLabel(engine: SearchEngine): string {
+  return engine.labelKey ? t(engine.labelKey) : engine.name;
+}

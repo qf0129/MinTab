@@ -1,6 +1,7 @@
 import { Trash2, X } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
 import { countBookmarks, removeFolderNode, renameFolderNode } from '../lib/browser-bookmarks';
+import { t } from '../lib/i18n';
 import type { BrowserBookmarkNode } from '../lib/types';
 
 interface Props {
@@ -26,7 +27,7 @@ export function FolderEditDialog({ node, onClose, onChanged }: Props) {
     event.preventDefault();
     const nextName = name.trim();
     if (!nextName) {
-      setError('请输入文件夹名称');
+      setError(t('folderDialog_nameRequired'));
       return;
     }
     setBusy(true);
@@ -35,7 +36,7 @@ export function FolderEditDialog({ node, onClose, onChanged }: Props) {
       onChanged();
       onClose();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '保存失败');
+      setError(reason instanceof Error ? reason.message : t('bookmarkDialog_saveFailed'));
       setBusy(false);
     }
   };
@@ -51,7 +52,7 @@ export function FolderEditDialog({ node, onClose, onChanged }: Props) {
       onChanged();
       onClose();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '删除失败');
+      setError(reason instanceof Error ? reason.message : t('bookmarkDialog_deleteFailed'));
       setBusy(false);
     }
   };
@@ -61,30 +62,32 @@ export function FolderEditDialog({ node, onClose, onChanged }: Props) {
       <button
         type="button"
         className="absolute inset-0 cursor-default"
-        aria-label="关闭文件夹对话框"
+        aria-label={t('folderDialog_close')}
         onClick={onClose}
       />
       <form
         onSubmit={submit}
         className="surface relative w-full max-w-sm rounded-lg bg-white p-5"
-        aria-label="编辑文件夹"
+        aria-label={t('folderDialog_title')}
       >
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold">编辑文件夹</h2>
-            <p className="mt-1 text-xs text-black/40">{total} 个书签</p>
+            <h2 className="text-base font-semibold">{t('folderDialog_title')}</h2>
+            <p className="mt-1 text-xs text-black/40">
+              {t('folderDialog_count', { count: total })}
+            </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="focus-ring rounded p-1 text-black/45 hover:bg-black/5"
-            title="关闭"
+            title={t('dialog_close')}
           >
             <X size={18} />
           </button>
         </div>
         <label className="block text-xs font-medium text-black/60">
-          文件夹名称
+          {t('folderDialog_name')}
           <input
             value={name}
             onChange={(event) => {
@@ -103,7 +106,7 @@ export function FolderEditDialog({ node, onClose, onChanged }: Props) {
             className="focus-ring flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
           >
             <Trash2 size={15} />
-            {confirmingDelete ? '确认删除文件夹及其书签' : '删除文件夹'}
+            {confirmingDelete ? t('folderDialog_confirmDelete') : t('folderDialog_delete')}
           </button>
           <div className="ml-auto flex gap-2">
             <button
@@ -111,14 +114,14 @@ export function FolderEditDialog({ node, onClose, onChanged }: Props) {
               onClick={onClose}
               className="focus-ring rounded-md border border-black/12 px-4 py-2 text-sm hover:bg-black/4"
             >
-              取消
+              {t('dialog_cancel')}
             </button>
             <button
               type="submit"
               disabled={busy}
               className="focus-ring rounded-md bg-[#26734d] px-4 py-2 text-sm font-medium text-white hover:bg-[#1f6140] disabled:opacity-50"
             >
-              保存
+              {t('dialog_save')}
             </button>
           </div>
         </div>

@@ -18,7 +18,9 @@ async function requestApi(path: string, method = 'GET', body?: unknown) {
     const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
     return { ok: response.ok, status: response.status, data };
   } catch {
-    return { ok: false, status: 0, data: { error: '无法连接服务器' } };
+    // No `error` text here on purpose: the UI translates transport failures from
+    // the status code, so this bundle does not need to know the UI language.
+    return { ok: false, status: 0, data: { error: '' } };
   }
 }
 

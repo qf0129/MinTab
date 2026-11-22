@@ -4,9 +4,15 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'wxt';
 
 const DEFAULT_SITE_BASE = 'http://127.0.0.1:8787';
-const DEFAULT_PRODUCT_NAME = 'MinTab';
-const DEFAULT_DESCRIPTION =
-  '新标签页直接查看浏览器书签，可选上传书签快照到自建后端，支持多设备与跨记录搜索。';
+
+/**
+ * Manifest strings are localized through `_locales` (`default_locale: en`), so an
+ * unsupported browser language falls back to English instead of Chinese. Setting
+ * `WXT_PRODUCT_NAME` / `WXT_PRODUCT_DESCRIPTION` still wins for forks that want
+ * one hardcoded name.
+ */
+const MESSAGES_PRODUCT_NAME = '__MSG_extName__';
+const MESSAGES_DESCRIPTION = '__MSG_extDescription__';
 
 /**
  * Read a `WXT_*` variable from the same files Vite loads, with the same
@@ -42,12 +48,15 @@ function resolveSiteBase(mode: string): string {
   ).replace(/\/+$/, '');
 }
 
-function resolveProductName(mode: string): string {
-  return (
-    process.env.WXT_PRODUCT_NAME ??
-    readEnvValue(mode, 'WXT_PRODUCT_NAME') ??
-    DEFAULT_PRODUCT_NAME
-  ).trim();
+/**
+ * Explicit name/description overrides; `undefined` means "let `_locales` decide".
+ */
+function resolveManifestText(mode: string): { name?: string; description?: string } {
+  const name = (process.env.WXT_PRODUCT_NAME ?? readEnvValue(mode, 'WXT_PRODUCT_NAME'))?.trim();
+  const description = (
+    process.env.WXT_PRODUCT_DESCRIPTION ?? readEnvValue(mode, 'WXT_PRODUCT_DESCRIPTION')
+  )?.trim();
+  return { name: name || undefined, description: description || undefined };
 }
 
 function isLoopback(url: string): boolean {
@@ -81,11 +90,16 @@ export default defineConfig({
       console.warn(message);
     }
 
-    const productName = resolveProductName(mode);
+    const manifestText = resolveManifestText(mode);
+    const name = manifestText.name ?? MESSAGES_PRODUCT_NAME;
 
     return {
-      name: productName,
-      description: process.env.WXT_PRODUCT_DESCRIPTION ?? DEFAULT_DESCRIPTION,
+      name,
+      description: manifestText.description ?? MESSAGES_DESCRIPTION,
+      // `_locales/<browser UI language>` is picked by the browser; anything we
+      // do not ship falls back to this locale, which is why the default is
+      // English rather than the project's own language.
+      default_locale: 'en',
       // Version comes from package.json so there is one source of truth.
       // `cookies` is deliberately absent: the extension authenticates with the
       // token issued by the web handshake, so it never reads the session cookie.
@@ -93,7 +107,7 @@ export default defineConfig({
       // `sidepanel` entrypoint (`side_panel.default_path`).
       permissions: ['storage', 'favicon', 'bookmarks'],
       host_permissions: [`${new URL(siteBase).origin}/*`],
-      action: { default_title: productName },
+      action: { default_title: name },
       chrome_url_overrides: { newtab: 'newtab.html' },
       icons: {
         16: 'icon16.png',

@@ -132,11 +132,19 @@ NewTabApp ──► BookmarkBoard / 文件夹面板      （纯本地渲染、�
 | --- | --- | --- |
 | `WXT_SITE_BASE` | 后端 + 网页端地址；同时决定 `host_permissions` | `http://127.0.0.1:8787` |
 | `WXT_BACKEND` | `http` 或 `local` | `http` |
-| `WXT_PRODUCT_NAME` | manifest 名称、设置面板标题、页面标题 | `MinTab` |
-| `WXT_PRODUCT_DESCRIPTION` | manifest 描述 | 内置中文描述 |
+| `WXT_PRODUCT_NAME` | 覆盖 `_locales` 里的 `extName`（manifest 名称、侧栏标题） | 未设置（用 `_locales`） |
+| `WXT_PRODUCT_DESCRIPTION` | 覆盖 `_locales` 里的 `extDescription` | 未设置（用 `_locales`） |
 | `WXT_STRICT_SITE` | `1` 时，生产构建指向 localhost 直接失败 | 未设置 |
 
 这些变量只影响构建结果，运行时不读取环境（扩展没有运行时环境）。
+
+## 多语言
+
+manifest 只引用 `__MSG_extName__` / `__MSG_extDescription__`，`default_locale` 是 `en`；
+文案在 `public/_locales/{en,zh_CN,zh_TW}/messages.json`。语言选择完全交给浏览器：
+它按界面语言找 `_locales/<locale>`，找不到就用 `default_locale`，所以"不支持的语言显示英文"
+不需要任何判定代码。页面侧统一走 `lib/i18n.ts` 的 `t(key)`，`key` 的类型由 `en/messages.json`
+推导；`test/i18n.test.ts` 校验 key 集合、占位符与源码引用三者一致。
 
 ## 为什么没有状态管理库
 

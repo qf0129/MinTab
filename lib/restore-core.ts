@@ -8,6 +8,7 @@ import {
   snapshotChildren,
 } from './bookmark-transfer';
 import { PRODUCT_NAME } from './constants';
+import { t } from './i18n';
 import type { BrowserBookmarkNode } from './types';
 
 export type RestoreMode = 'merge' | 'replace';
@@ -114,8 +115,20 @@ function stamp(date = new Date()): string {
   )}:${pad(date.getMinutes())}`;
 }
 
-function titleOf(node: SnapshotNode, fallback = '未命名文件夹'): string {
-  return typeof node.title === 'string' && node.title.trim() ? node.title : fallback;
+/**
+ * Title of the staging folder that `replace` writes into before swapping.
+ *
+ * Exported so tests can recognise it without hardcoding a language (the title is
+ * localized, so no literal prefix is stable).
+ */
+export function stagingFolderTitle(now = new Date()): string {
+  return t('restore_staging', { product: PRODUCT_NAME, time: stamp(now) });
+}
+
+function titleOf(node: SnapshotNode, fallback?: string): string {
+  return typeof node.title === 'string' && node.title.trim()
+    ? node.title
+    : (fallback ?? t('restore_untitledFolder'));
 }
 
 function urlOf(node: SnapshotNode): string {
@@ -172,7 +185,7 @@ function groupTargets(
   // Fallbacks keep a completely unrecognised local layout usable: the first root
   // folder acts as the bookmark bar, the second as "other bookmarks".
   const bar = byKind.get('bar') ?? localRootList[0];
-  if (!bar) throw new Error('浏览器里没有可用的书签文件夹');
+  if (!bar) throw new Error(t('restore_noRoots'));
   const other = byKind.get('other') ?? localRootList[1] ?? bar;
 
   const targets = new Map<string, Target>();
@@ -197,12 +210,10 @@ function groupTargets(
     // next to "other bookmarks", anything else under the bookmark bar, always
     // inside a folder named after the original root.
     const host = kind === 'mobile' || kind === 'other' ? other : bar;
-    const label = source.title || '导入的书签';
+    const label = source.title || t('restore_imported');
     ensure(host).sources.push({ nodes: source.children, label });
-    const localNames = localRootList.map((root) => root.title).join('、');
-    notices.push(
-      `快照里的「${label}」没有匹配到本地根文件夹，内容已放进「${host.title}/${label}」（本地根文件夹：${localNames}）`
-    );
+    const localNames = localRootList.map((root) => root.title).join(t('restore_listSeparator'));
+    notices.push(t('restore_noticeMissingRoot', { label, host: host.title, roots: localNames }));
   }
 
   return { targets: [...targets.values()], notices };
@@ -364,7 +375,7 @@ async function replaceAtRoots(
     for (const target of targets) {
       const stage = await api.create({
         parentId: target.local.id,
-        title: `${PRODUCT_NAME} 恢复 ${stamp()}`,
+        title: stagingFolderTitle(),
       });
       staging.set(target.local.id, stage.id);
 
@@ -449,12 +460,12 @@ export async function restoreSnapshot(
           0
         )
       : countNodes(snapshotChildren(options.snapshot));
-  if (total === 0) throw new Error('这份快照里没有书签');
+  if (total === 0) throw new Error(t('restore_emptySnapshot'));
   if (total > MAX_RESTORE_NODES) {
-    throw new Error(`快照共有 ${total} 个节点，超过单次恢复上限 ${MAX_RESTORE_NODES}`);
+    throw new Error(t('restore_tooMany', { total, limit: MAX_RESTORE_NODES }));
   }
   if (localRoots(options.existingTree).length === 0) {
-    throw new Error('浏览器里没有可用的书签文件夹');
+    throw new Error(t('restore_noRoots'));
   }
 
   const ctx: Ctx = {

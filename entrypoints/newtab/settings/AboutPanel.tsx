@@ -1,5 +1,6 @@
 import { ExternalLink } from 'lucide-react';
 import { PRODUCT_NAME } from '../../../lib/constants';
+import { t } from '../../../lib/i18n';
 import { cardClass, PanelSection } from './ui';
 
 const REPO_URL = 'https://github.com/qf0129/MinTab';
@@ -7,26 +8,26 @@ const REPO_URL = 'https://github.com/qf0129/MinTab';
 const LINKS = [
   {
     id: 'repo',
-    label: 'GitHub 仓库',
-    detail: 'github.com/qf0129/MinTab',
+    labelKey: 'about_repo',
+    detailKey: 'about_repoDetail',
     href: REPO_URL,
   },
   {
     id: 'issues',
-    label: '问题反馈',
-    detail: '提交 Bug 或功能建议',
+    labelKey: 'about_issues',
+    detailKey: 'about_issuesDetail',
     href: `${REPO_URL}/issues`,
   },
   {
     id: 'privacy',
-    label: '隐私说明',
-    detail: '数据如何被读取与上传',
+    labelKey: 'about_privacy',
+    detailKey: 'about_privacyDetail',
     href: `${REPO_URL}/blob/main/PRIVACY.md`,
   },
   {
     id: 'license',
-    label: '开源许可',
-    detail: 'MIT License',
+    labelKey: 'about_license',
+    detailKey: 'about_licenseDetail',
     href: `${REPO_URL}/blob/main/LICENSE`,
   },
 ] as const;
@@ -38,7 +39,7 @@ export function AboutPanel() {
 
   return (
     <div className="space-y-6">
-      <PanelSection title="插件信息">
+      <PanelSection title={t('about_info')}>
         <div className={`${cardClass} flex items-start gap-3.5 p-4`}>
           <img
             src={browser.runtime.getURL('/icon128.png')}
@@ -59,7 +60,7 @@ export function AboutPanel() {
         </div>
       </PanelSection>
 
-      <PanelSection title="项目链接">
+      <PanelSection title={t('about_links')}>
         <ul className={`${cardClass} divide-y divide-black/6 overflow-hidden`}>
           {LINKS.map((link) => (
             <li key={link.id}>
@@ -70,9 +71,9 @@ export function AboutPanel() {
                 className="focus-ring group flex items-center gap-3 px-3.5 py-2.5 transition hover:bg-black/[0.02]"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm">{link.label}</span>
+                  <span className="block text-sm">{t(link.labelKey)}</span>
                   <span className="mt-0.5 block truncate font-mono text-[11px] text-black/40">
-                    {link.detail}
+                    {t(link.detailKey)}
                   </span>
                 </span>
                 <ExternalLink
@@ -85,10 +86,10 @@ export function AboutPanel() {
         </ul>
       </PanelSection>
 
-      <PanelSection title="数据与隐私">
+      <PanelSection title={t('about_privacySection')}>
         <div className={`${cardClass} space-y-1.5 px-3.5 py-3 text-xs leading-5 text-black/55`}>
-          <p>书签直接读取自浏览器；只有你手动点击「上传」时，快照才会发送到同步服务。</p>
-          <p>同步设置、设备标识与背景图只保存在本机 storage.local，不会随书签一起上传。</p>
+          <p>{t('about_privacyBody1')}</p>
+          <p>{t('about_privacyBody2')}</p>
         </div>
       </PanelSection>
     </div>

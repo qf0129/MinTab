@@ -1,5 +1,5 @@
 import { browser } from 'wxt/browser';
-import { backend, LOCAL_ONLY_MESSAGE } from './backend';
+import { backend, localOnlyMessage } from './backend';
 import { SITE_BASE } from './constants';
 import {
   clearExtensionToken,
@@ -28,7 +28,7 @@ function createLinkState(): string {
  * needs the `cookies` permission.
  */
 export async function beginExtensionLink(): Promise<void> {
-  if (!backend.supportsAccount) throw new Error(LOCAL_ONLY_MESSAGE);
+  if (!backend.supportsAccount) throw new Error(localOnlyMessage());
   const state = createLinkState();
   await savePendingLink(state);
   await browser.tabs.create({ url: `${SITE_BASE}/extension-auth?state=${state}` });

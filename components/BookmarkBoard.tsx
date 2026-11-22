@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { ReactSortable, type SortableEvent } from 'react-sortablejs';
 import { bookmarkHref, countBookmarks, isFolder } from '../lib/browser-bookmarks';
 import { faviconUrl, hostnameOf } from '../lib/favicon';
+import { t } from '../lib/i18n';
 import type { BrowserBookmarkNode } from '../lib/types';
 
 interface Props {
@@ -71,9 +72,9 @@ function BookmarkCard({
   'data-id': dataId,
 }: CardProps) {
   const folder = isFolder(node);
-  const title = node.title || node.url || '未命名';
+  const title = node.title || node.url || t('app_untitled');
   const count = folder ? countBookmarks(node) : 0;
-  const label = folder ? `${title}(${count})` : title;
+  const label = folder ? t('board_folderAria', { title, count }) : title;
   // A bookmark is a real link, so the browser's own affordances (middle click,
   // ⌘/Ctrl-click, "copy link", status-bar preview) work again. Folders have no
   // target: they scroll to their inline group instead.
@@ -140,7 +141,7 @@ function BookmarkCard({
         <button
           type="button"
           onClick={() => (folder ? onOpenFolder(node) : onOpen(node))}
-          title={folder ? `${title}(${count} 个书签)` : `${title} | ${node.url}`}
+          title={folder ? t('board_folderTitle', { title, count }) : `${title} | ${node.url}`}
           aria-label={label}
           className={mainClassName}
         >
@@ -154,8 +155,8 @@ function BookmarkCard({
           onEdit(node);
         }}
         className="focus-ring absolute right-1.5 top-1/2 z-10 flex size-6 -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-[#1f2928] opacity-0 shadow-sm transition group-hover:opacity-100"
-        title={folder ? '编辑文件夹' : '编辑书签'}
-        aria-label={`编辑 ${title}`}
+        title={folder ? t('board_editFolder') : t('board_editBookmark')}
+        aria-label={t('board_edit', { title })}
       >
         <Pencil size={13} />
       </button>
@@ -170,7 +171,7 @@ export function BookmarkBoard({
   cardColor,
   cardBorder,
   accentColor,
-  emptyText = '此文件夹暂无内容',
+  emptyText = t('board_empty'),
   onOpen,
   onOpenFolder,
   onEdit,

@@ -1,9 +1,9 @@
 import type { SnapshotNode } from '../bookmark-transfer';
 import type { User } from '../types';
-import { LOCAL_ONLY_MESSAGE, type SessionState, type SyncBackend } from './contract';
+import { localOnlyMessage, type SessionState, type SyncBackend } from './contract';
 
 const unsupported = (): never => {
-  throw new Error(LOCAL_ONLY_MESSAGE);
+  throw new Error(localOnlyMessage());
 };
 
 /**
