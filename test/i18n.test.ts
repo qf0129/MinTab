@@ -66,6 +66,14 @@ describe('locales', () => {
     expect(invalid).toEqual([]);
   });
 
+  it.each(locales())('%s keeps manifest strings within the store limits', (locale) => {
+    const messages = readMessages(locale);
+    // Chrome rejects the package outright when these overflow, so catch it here
+    // instead of at upload time: name ≤ 45, description ≤ 132 characters.
+    expect(messages.extName?.message.length ?? 0).toBeLessThanOrEqual(45);
+    expect(messages.extDescription?.message.length ?? 0).toBeLessThanOrEqual(132);
+  });
+
   it.each(locales())('%s has no empty message', (locale) => {
     const empty = Object.entries(readMessages(locale))
       .filter(([, value]) => !value.message.trim())

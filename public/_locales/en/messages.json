@@ -1,7 +1,7 @@
 {
   "extName": { "message": "MinTab" },
   "extDescription": {
-    "message": "See your native browser bookmarks on the new tab page: folder groups, search, inline editing and optional sync to a backend you host yourself."
+    "message": "Your browser bookmarks on the new tab page: folder groups, search, inline editing and optional self-hosted sync."
   },
 
   "app_loading": { "message": "Loading…" },
